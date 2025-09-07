@@ -36,6 +36,7 @@ export function useGameState() {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [educationalMessage, setEducationalMessage] = useState<EducationalMessage | null>(null);
   const [showCombo, setShowCombo] = useState(false);
+  const [lastBonusTime, setLastBonusTime] = useState<number>(0);
 
   const resetGame = useCallback(() => {
     setGameState(prev => ({
@@ -96,20 +97,28 @@ export function useGameState() {
   }, []);
 
   const collectBonus = useCallback((bonus: Bonus) => {
+    console.log('Collecting bonus:', bonus, 'Game state before:', gameState.state);
+    
+    // Проверяем, что игра все еще идет
+    if (gameState.state !== 'playing') {
+      console.log('Game not playing, ignoring bonus collection');
+      return;
+    }
+    
+    const now = Date.now();
+    setLastBonusTime(now);
+    
     setGameState(prev => {
       const newCombo = prev.combo + 1;
       const multiplier = Math.min(newCombo, 4);
       const points = bonus.value * multiplier;
       
+      console.log('Bonus collected! Points:', points, 'Combo:', newCombo);
+      
       if (newCombo > 1) {
         setShowCombo(true);
         setTimeout(() => setShowCombo(false), 2000);
       }
-
-      // Reset combo after 2 seconds
-      setTimeout(() => {
-        setGameState(current => ({ ...current, combo: 0 }));
-      }, 2000);
 
       return {
         ...prev,
@@ -133,7 +142,7 @@ export function useGameState() {
       });
     }
     setParticles(prev => [...prev, ...newParticles]);
-  }, []);
+  }, [gameState.state]);
 
   const hitObstacle = useCallback((obstacle: Obstacle) => {
     const message = EDUCATIONAL_MESSAGES[obstacle.type];
@@ -153,6 +162,19 @@ export function useGameState() {
       });
     }
   }, [gameState.score]);
+
+  // Функция обновления игрового состояния (сброс комбо по времени)
+  const updateGameLogic = useCallback(() => {
+    if (gameState.state === 'playing') {
+      const now = Date.now();
+      // Сбрасываем комбо через 3 секунды без бонусов
+      if (gameState.combo > 0 && lastBonusTime > 0 && now - lastBonusTime > 3000) {
+        console.log('Resetting combo due to timeout');
+        setGameState(prev => ({ ...prev, combo: 0 }));
+        setLastBonusTime(0);
+      }
+    }
+  }, [gameState.state, gameState.combo, lastBonusTime]);
 
   return {
     gameState,
@@ -174,6 +196,7 @@ export function useGameState() {
     gameOver,
     collectBonus,
     hitObstacle,
-    shareScore
+    shareScore,
+    updateGameLogic
   };
 }

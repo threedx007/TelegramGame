@@ -24,7 +24,8 @@ export default function Game() {
     resumeGame,
     collectBonus,
     hitObstacle,
-    shareScore
+    shareScore,
+    updateGameLogic
   } = useGameState();
 
   const handleJump = () => {
@@ -65,6 +66,7 @@ export default function Game() {
         onBonusCollect={collectBonus}
         onObstacleHit={hitObstacle}
         onJump={handleJump}
+        onUpdateGameLogic={updateGameLogic}
       />
       
       <GameUI

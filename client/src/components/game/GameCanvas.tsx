@@ -15,6 +15,7 @@ interface GameCanvasProps {
   onBonusCollect: (bonus: Bonus) => void;
   onObstacleHit: (obstacle: Obstacle) => void;
   onJump: () => void;
+  onUpdateGameLogic: () => void;
 }
 
 export default function GameCanvas({
@@ -30,7 +31,8 @@ export default function GameCanvas({
   onGameStateUpdate,
   onBonusCollect,
   onObstacleHit,
-  onJump
+  onJump,
+  onUpdateGameLogic
 }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
@@ -271,7 +273,10 @@ export default function GameCanvas({
       return particle.life > 0;
     });
     onParticlesUpdate(updatedParticles);
-  }, [gameState.state, gameState.distance, gameState.gameSpeed, player, obstacles, bonuses, particles, onPlayerUpdate, onObstaclesUpdate, onBonusesUpdate, onParticlesUpdate, onGameStateUpdate, onBonusCollect, onObstacleHit, spawnObstacle, spawnBonus, checkCollision]);
+    
+    // Обновляем игровую логику (комбо, таймеры)
+    onUpdateGameLogic();
+  }, [gameState.state, gameState.distance, gameState.gameSpeed, player, obstacles, bonuses, particles, onPlayerUpdate, onObstaclesUpdate, onBonusesUpdate, onParticlesUpdate, onGameStateUpdate, onBonusCollect, onObstacleHit, spawnObstacle, spawnBonus, checkCollision, onUpdateGameLogic]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
