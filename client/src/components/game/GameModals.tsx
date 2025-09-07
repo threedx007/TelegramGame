@@ -62,32 +62,7 @@ export default function GameModals({
                 </div>
               </div>
 
-              <div className="space-y-2 mb-4 text-left">
-                <div className="flex items-start space-x-2">
-                  <div className="text-green-600 text-sm mt-0.5">✓</div>
-                  <p className="text-xs text-gray-700">
-                    <span className="font-semibold">Обслуживание и ремонт</span> – продлю срок службы вашего септика!
-                  </p>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <div className="text-green-600 text-sm mt-0.5">✓</div>
-                  <p className="text-xs text-gray-700">
-                    <span className="font-semibold">Продажа и монтаж под ключ</span> – за 1 день, быстро, чисто, с гарантией.
-                  </p>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <div className="text-green-600 text-sm mt-0.5">✓</div>
-                  <p className="text-xs text-gray-700">
-                    <span className="font-semibold">Аварийная Wi-Fi сигнализация</span> – контроль переполнения онлайн!
-                  </p>
-                </div>
-                <div className="flex items-start space-x-2">
-                  <div className="text-green-600 text-sm mt-0.5">✓</div>
-                  <p className="text-xs text-gray-700">
-                    <span className="font-semibold">Дренажные работы</span> – решаю проблемы подтопления участка.
-                  </p>
-                </div>
-              </div>
+              
 
               <div className="bg-blue-50 rounded-lg p-3 text-center">
                 <div className="text-sm font-bold text-blue-800 mb-1">Контакты для заказа услуг:</div>
