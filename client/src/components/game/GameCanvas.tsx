@@ -194,16 +194,21 @@ export default function GameCanvas({
     // Обработка запроса на прыжок
     const updatedPlayer = { ...player };
     if (jumpRequestRef.current) {
+      console.log('Jump request received! Player grounded:', updatedPlayer.grounded, 'doubleJumpAvailable:', updatedPlayer.doubleJumpAvailable);
       // Обычный прыжок с земли
       if (updatedPlayer.grounded) {
+        console.log('Ground jump executed');
         updatedPlayer.velocityY = -15;
         updatedPlayer.grounded = false;
         updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок
       }
       // Двойной прыжок в воздухе
       else if (updatedPlayer.doubleJumpAvailable) {
+        console.log('Double jump executed!');
         updatedPlayer.velocityY = -12; // Чуть слабее чем обычный прыжок
         updatedPlayer.doubleJumpAvailable = false; // Тратим двойной прыжок
+      } else {
+        console.log('Jump rejected - not grounded and no double jump available');
       }
       jumpRequestRef.current = false; // Сбрасываем запрос
     }
@@ -343,10 +348,10 @@ export default function GameCanvas({
   }, []);
 
   const handleInput = useCallback(() => {
-    if (gameState.state === 'playing' && player.grounded) {
+    if (gameState.state === 'playing') {
       onJump();
     }
-  }, [gameState.state, player.grounded, onJump]);
+  }, [gameState.state, onJump]);
 
   const handleTouchStart = useCallback((e: TouchEvent) => {
     e.preventDefault();

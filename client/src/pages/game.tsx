@@ -31,8 +31,10 @@ export default function Game() {
   const jumpRequestRef = useRef(false);
 
   const handleJump = () => {
+    console.log('handleJump called, game state:', gameState.state, 'player grounded:', player.grounded, 'doubleJumpAvailable:', player.doubleJumpAvailable);
     if (gameState.state !== 'playing') return;
     jumpRequestRef.current = true; // Сигнализируем о запросе на прыжок
+    console.log('Jump request set to true');
   };
 
   const handleCloseEducation = () => {
