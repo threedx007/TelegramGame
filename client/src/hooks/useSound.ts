@@ -1,5 +1,11 @@
 import { useRef, useCallback, useState, useEffect } from 'react';
 
+// Детекция iOS устройств
+const isIOS = () => {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
 export interface SoundConfig {
   volume?: number;
   loop?: boolean;
@@ -30,6 +36,9 @@ export function useSound() {
     return saved !== null ? parseFloat(saved) : 0.7;
   });
 
+  // Альтернативная система для iOS с использованием базовых тонов
+  const [iosAudioEnabled, setIosAudioEnabled] = useState(false);
+
   const audioContextRef = useRef<AudioContext | null>(null);
   const backgroundMusicRef = useRef<{
     oscillator?: OscillatorNode;
@@ -37,6 +46,35 @@ export function useSound() {
     bassOscillator?: OscillatorNode;
     isPlaying: boolean;
   }>({ isPlaying: false });
+
+  // Создание простых звуковых эффектов для iOS
+  const createIOSSound = useCallback((frequency: number, duration: number) => {
+    if (!enabled || !iosAudioEnabled) return;
+
+    try {
+      const audioCtx = audioContextRef.current;
+      if (!audioCtx || audioCtx.state !== 'running') return;
+
+      // Используем более простой подход для iOS
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(volume * 0.3, audioCtx.currentTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + duration);
+    } catch (error) {
+      console.log('iOS звук не удался:', error);
+    }
+  }, [enabled, iosAudioEnabled, volume]);
 
   // Функция инициализации AudioContext (требует пользовательского взаимодействия на мобильных)
   const initializeAudioContext = useCallback(() => {
@@ -47,6 +85,12 @@ export function useSound() {
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         console.log('AudioContext создан, состояние:', audioContextRef.current.state);
+        
+        // Для iOS устройств активируем специальный режим
+        if (isIOS()) {
+          console.log('iOS устройство обнаружено, включаем iOS режим');
+          setIosAudioEnabled(true);
+        }
       }
       
       // Пытаемся возобновить AudioContext если он заблокирован
@@ -54,9 +98,28 @@ export function useSound() {
         console.log('Попытка возобновить AudioContext...');
         audioContextRef.current.resume().then(() => {
           console.log('AudioContext возобновлен, состояние:', audioContextRef.current?.state);
+          if (isIOS()) {
+            setIosAudioEnabled(true);
+          }
         }).catch((error) => {
           console.error('Ошибка возобновления AudioContext:', error);
         });
+      }
+      
+      // Для iOS пытаемся создать тестовый звук для разблокировки
+      if (isIOS() && audioContextRef.current.state === 'running') {
+        try {
+          const testOsc = audioContextRef.current.createOscillator();
+          const testGain = audioContextRef.current.createGain();
+          testOsc.connect(testGain);
+          testGain.connect(audioContextRef.current.destination);
+          testGain.gain.setValueAtTime(0, audioContextRef.current.currentTime);
+          testOsc.start();
+          testOsc.stop(audioContextRef.current.currentTime + 0.01);
+          console.log('iOS тестовый звук создан');
+        } catch (error) {
+          console.log('iOS тестовый звук не удался:', error);
+        }
       }
       
       return audioContextRef.current.state === 'running';
@@ -86,10 +149,16 @@ export function useSound() {
   const playTone = useCallback((frequency: number, duration: number, type: OscillatorType = 'sine', fadeOut: boolean = true) => {
     if (!enabled) return;
     
-    // Пытаемся инициализировать AudioContext при каждом звуке
-    const initialized = initializeAudioContext();
+    // Агрессивно пытаемся инициализировать AudioContext при каждом звуке
+    initializeAudioContext();
+    
+    // Дополнительная попытка для iOS устройств
+    if (isIOS() && audioContextRef.current?.state === 'suspended') {
+      audioContextRef.current.resume().catch(console.error);
+    }
+    
     if (!audioContextRef.current || audioContextRef.current.state !== 'running') {
-      console.log('AudioContext недоступен для воспроизведения звука');
+      console.log('AudioContext недоступен для воспроизведения звука, состояние:', audioContextRef.current?.state);
       return;
     }
 

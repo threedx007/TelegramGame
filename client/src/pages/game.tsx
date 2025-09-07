@@ -101,7 +101,29 @@ export default function Game() {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
-  }, []);
+
+    // Попытка разблокировать звук при загрузке для iOS
+    const unlockAudio = () => {
+      try {
+        sounds.initializeAudio();
+        console.log('Попытка разблокировки аудио при загрузке');
+      } catch (error) {
+        console.error('Ошибка разблокировки аудио при загрузке:', error);
+      }
+    };
+
+    // Добавляем слушатели событий для разблокировки звука на iOS
+    const events = ['touchstart', 'touchend', 'mousedown', 'keydown'];
+    events.forEach(event => {
+      document.addEventListener(event, unlockAudio, { once: true });
+    });
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, unlockAudio);
+      });
+    };
+  }, [sounds]);
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-sky-300 via-blue-500 to-blue-900">
