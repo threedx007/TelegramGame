@@ -282,13 +282,13 @@ export default function GameCanvas({
     if (jumpRequestRef.current) {
       // Обычный прыжок с земли
       if (updatedPlayer.grounded) {
-        updatedPlayer.velocityY = -15;
+        updatedPlayer.velocityY = -18; // Увеличили силу прыжка для больших спрайтов
         updatedPlayer.grounded = false;
         updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок
       }
       // Двойной прыжок в воздухе
       else if (updatedPlayer.doubleJumpAvailable) {
-        updatedPlayer.velocityY = -12; // Чуть слабее чем обычный прыжок
+        updatedPlayer.velocityY = -15; // Увеличили силу двойного прыжка
         updatedPlayer.doubleJumpAvailable = false; // Тратим двойной прыжок
       }
       jumpRequestRef.current = false; // Сбрасываем запрос
