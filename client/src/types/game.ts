@@ -30,6 +30,16 @@ export interface Bonus extends GameObject {
   value: number;
 }
 
+export interface Pit extends GameObject {
+  type: 'pit';
+  depth: number; // глубина ямы для визуализации
+}
+
+export interface Platform extends GameObject {
+  type: 'platform';
+  material: 'stone' | 'wood' | 'metal'; // материал платформы
+}
+
 export interface Particle {
   x: number;
   y: number;
