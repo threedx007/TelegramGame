@@ -154,7 +154,9 @@ export default function GameCanvas({
     if (yPosition < groundLevel - obstacleHeight && Math.random() < 0.3) {
       obstacle.velocityY = 1 + Math.random() * 2; // Скорость движения 1-3 пикселя/кадр
       obstacle.oscillationCenter = yPosition;
-      obstacle.oscillationRange = 50 + Math.random() * 30; // Радиус колебаний 50-80 пикселей
+      // Ограничиваем радиус колебаний, чтобы не уходить под землю
+      const maxOscillationDown = (groundLevel - obstacleHeight) - yPosition;
+      obstacle.oscillationRange = Math.min(50 + Math.random() * 30, maxOscillationDown / 2); // Макс 50-80 пикселей, но не под землю
     }
 
     return obstacle;
@@ -633,10 +635,16 @@ export default function GameCanvas({
       if (obstacle.velocityY !== undefined && obstacle.oscillationCenter !== undefined && obstacle.oscillationRange !== undefined) {
         obstacle.y += obstacle.velocityY * deltaMultiplier;
         
-        // Отскок от границ колебаний
+        // Отскок от границ колебаний и от земли
+        const maxGroundY = canvas.height - 120 - obstacle.height; // Максимально низкая позиция (на земле)
         if (obstacle.y <= obstacle.oscillationCenter - obstacle.oscillationRange || 
-            obstacle.y >= obstacle.oscillationCenter + obstacle.oscillationRange) {
+            obstacle.y >= obstacle.oscillationCenter + obstacle.oscillationRange ||
+            obstacle.y >= maxGroundY) {
           obstacle.velocityY = -obstacle.velocityY;
+          // Корректируем позицию, чтобы не уйти под землю
+          if (obstacle.y >= maxGroundY) {
+            obstacle.y = maxGroundY;
+          }
         }
       }
       
