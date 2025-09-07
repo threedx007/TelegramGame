@@ -1,5 +1,10 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { Player, Obstacle, Bonus, Particle, GameState } from '@/types/game';
+
+// Импорты изображений спрайтов
+import bonusSprites from '@assets/generated_images/Game_bonus_sprites_collection_ef5bcca5.png';
+import obstacleSprites from '@assets/generated_images/Game_obstacle_sprites_collection_f5f7d759.png';
+import playerSprite from '@assets/generated_images/Water_droplet_main_character_c721555f.png';
 
 interface GameCanvasProps {
   gameState: GameState;
@@ -39,6 +44,13 @@ export default function GameCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
+  
+  // Состояние для загруженных изображений
+  const [images, setImages] = useState<{
+    player?: HTMLImageElement;
+    bonuses?: HTMLImageElement;
+    obstacles?: HTMLImageElement;
+  }>({});
 
   const checkCollision = useCallback((rect1: any, rect2: any) => {
     return rect1.x < rect2.x + rect2.width &&
@@ -117,69 +129,103 @@ export default function GameCanvas({
   }, []);
 
   const drawPlayer = useCallback((ctx: CanvasRenderingContext2D, player: Player) => {
-    ctx.save();
-    
-    // Main drop body
-    ctx.fillStyle = player.color;
-    ctx.beginPath();
-    ctx.arc(player.x + 20, player.y + 30, 18, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Drop shape top
-    ctx.beginPath();
-    ctx.moveTo(player.x + 20, player.y + 5);
-    ctx.quadraticCurveTo(player.x + 10, player.y + 20, player.x + 20, player.y + 30);
-    ctx.quadraticCurveTo(player.x + 30, player.y + 20, player.x + 20, player.y + 5);
-    ctx.fill();
+    if (images.player) {
+      // Отрисовка спрайта игрока
+      ctx.drawImage(
+        images.player,
+        player.x,
+        player.y,
+        player.width,
+        player.height
+      );
+    } else {
+      // Fallback - рисуем как раньше если изображение не загружено
+      ctx.save();
+      
+      // Main drop body
+      ctx.fillStyle = player.color;
+      ctx.beginPath();
+      ctx.arc(player.x + 20, player.y + 30, 18, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Drop shape top
+      ctx.beginPath();
+      ctx.moveTo(player.x + 20, player.y + 5);
+      ctx.quadraticCurveTo(player.x + 10, player.y + 20, player.x + 20, player.y + 30);
+      ctx.quadraticCurveTo(player.x + 30, player.y + 20, player.x + 20, player.y + 5);
+      ctx.fill();
 
-    // Eyes
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(player.x + 15, player.y + 22, 4, 0, Math.PI * 2);
-    ctx.arc(player.x + 25, player.y + 22, 4, 0, Math.PI * 2);
-    ctx.fill();
+      // Eyes
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(player.x + 15, player.y + 22, 4, 0, Math.PI * 2);
+      ctx.arc(player.x + 25, player.y + 22, 4, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Pupils
-    ctx.fillStyle = 'black';
-    ctx.beginPath();
-    ctx.arc(player.x + 15, player.y + 22, 2, 0, Math.PI * 2);
-    ctx.arc(player.x + 25, player.y + 22, 2, 0, Math.PI * 2);
-    ctx.fill();
+      // Pupils
+      ctx.fillStyle = 'black';
+      ctx.beginPath();
+      ctx.arc(player.x + 15, player.y + 22, 2, 0, Math.PI * 2);
+      ctx.arc(player.x + 25, player.y + 22, 2, 0, Math.PI * 2);
+      ctx.fill();
 
-    // Highlight
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.beginPath();
-    ctx.arc(player.x + 17, player.y + 18, 3, 0, Math.PI * 2);
-    ctx.fill();
+      // Highlight
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.beginPath();
+      ctx.arc(player.x + 17, player.y + 18, 3, 0, Math.PI * 2);
+      ctx.fill();
 
-    ctx.restore();
-  }, []);
+      ctx.restore();
+    }
+  }, [images.player]);
 
   const drawObstacle = useCallback((ctx: CanvasRenderingContext2D, obstacle: Obstacle) => {
-    // Рисуем препятствие
-    ctx.fillStyle = obstacle.color;
-    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-    
-    // Черная рамка для видимости
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-  }, []);
+    if (images.obstacles) {
+      // Отрисовка спрайта препятствия
+      ctx.drawImage(
+        images.obstacles,
+        obstacle.x,
+        obstacle.y,
+        obstacle.width,
+        obstacle.height
+      );
+    } else {
+      // Fallback - рисуем как раньше если изображение не загружено
+      ctx.fillStyle = obstacle.color;
+      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      
+      // Черная рамка для видимости
+      ctx.strokeStyle = '#000000';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+    }
+  }, [images.obstacles]);
 
   const drawBonus = useCallback((ctx: CanvasRenderingContext2D, bonus: Bonus) => {
-    ctx.save();
-    
-    // Рисуем бонус
-    ctx.fillStyle = bonus.color;
-    ctx.fillRect(bonus.x, bonus.y, bonus.width, bonus.height);
-    
-    // Белая рамка для контраста
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(bonus.x, bonus.y, bonus.width, bonus.height);
-    
-    ctx.restore();
-  }, []);
+    if (images.bonuses) {
+      // Отрисовка спрайта бонуса
+      ctx.drawImage(
+        images.bonuses,
+        bonus.x,
+        bonus.y,
+        bonus.width,
+        bonus.height
+      );
+    } else {
+      // Fallback - рисуем как раньше если изображение не загружено
+      ctx.save();
+      
+      ctx.fillStyle = bonus.color;
+      ctx.fillRect(bonus.x, bonus.y, bonus.width, bonus.height);
+      
+      // Белая рамка для контраста
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(bonus.x, bonus.y, bonus.width, bonus.height);
+      
+      ctx.restore();
+    }
+  }, [images.bonuses]);
 
   const drawParticle = useCallback((ctx: CanvasRenderingContext2D, particle: Particle) => {
     ctx.save();
@@ -406,6 +452,38 @@ export default function GameCanvas({
       handleInput();
     }
   }, [handleInput]);
+
+  // Загрузка изображений при монтировании компонента
+  useEffect(() => {
+    const loadImage = (src: string): Promise<HTMLImageElement> => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    };
+
+    const loadAllImages = async () => {
+      try {
+        const [playerImg, bonusesImg, obstaclesImg] = await Promise.all([
+          loadImage(playerSprite),
+          loadImage(bonusSprites),
+          loadImage(obstacleSprites)
+        ]);
+
+        setImages({
+          player: playerImg,
+          bonuses: bonusesImg,
+          obstacles: obstaclesImg
+        });
+      } catch (error) {
+        console.error('Ошибка загрузки изображений:', error);
+      }
+    };
+
+    loadAllImages();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
