@@ -23,11 +23,11 @@ export function useGameState() {
 
   const [player, setPlayer] = useState<Player>({
     x: 50,
-    y: 0,
+    y: window.innerHeight - 190, // Начинаем на земле
     width: 40,
     height: 40,
     velocityY: 0,
-    grounded: false,
+    grounded: true, // Начинаем на земле
     color: '#00A8FF'
   });
 
@@ -50,11 +50,11 @@ export function useGameState() {
 
     setPlayer({
       x: 50,
-      y: 0,
+      y: window.innerHeight - 190, // Начинаем на земле
       width: 40,
       height: 40,
       velocityY: 0,
-      grounded: false,
+      grounded: true, // Начинаем на земле
       color: '#00A8FF'
     });
 

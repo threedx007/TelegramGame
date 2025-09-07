@@ -28,7 +28,13 @@ export default function Game() {
   } = useGameState();
 
   const handleJump = () => {
+    console.log('Jump attempt:', { 
+      gameState: gameState.state, 
+      grounded: player.grounded, 
+      playerY: player.y 
+    });
     if (gameState.state === 'playing' && player.grounded) {
+      console.log('Jump executed!');
       setPlayer(prev => ({
         ...prev,
         velocityY: -15,

@@ -331,7 +331,7 @@ export default function GameCanvas({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []);
+  }, [handleInput, handleTouchStart, handleKeyDown, resizeCanvas]);
 
   // Separate effect for game loop management
   useEffect(() => {
