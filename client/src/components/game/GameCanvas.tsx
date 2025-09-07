@@ -7,6 +7,7 @@ interface GameCanvasProps {
   obstacles: Obstacle[];
   bonuses: Bonus[];
   particles: Particle[];
+  jumpRequestRef: React.MutableRefObject<boolean>;
   onPlayerUpdate: (player: Player) => void;
   onObstaclesUpdate: (obstacles: Obstacle[]) => void;
   onBonusesUpdate: (bonuses: Bonus[]) => void;
@@ -24,6 +25,7 @@ export default function GameCanvas({
   obstacles,
   bonuses,
   particles,
+  jumpRequestRef,
   onPlayerUpdate,
   onObstaclesUpdate,
   onBonusesUpdate,
@@ -189,8 +191,24 @@ export default function GameCanvas({
     let currentObstacles = [...obstacles];
     let currentBonuses = [...bonuses];
 
-    // Update player physics
+    // Обработка запроса на прыжок
     const updatedPlayer = { ...player };
+    if (jumpRequestRef.current) {
+      // Обычный прыжок с земли
+      if (updatedPlayer.grounded) {
+        updatedPlayer.velocityY = -15;
+        updatedPlayer.grounded = false;
+        updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок
+      }
+      // Двойной прыжок в воздухе
+      else if (updatedPlayer.doubleJumpAvailable) {
+        updatedPlayer.velocityY = -12; // Чуть слабее чем обычный прыжок
+        updatedPlayer.doubleJumpAvailable = false; // Тратим двойной прыжок
+      }
+      jumpRequestRef.current = false; // Сбрасываем запрос
+    }
+
+    // Update player physics
     if (!updatedPlayer.grounded) {
       updatedPlayer.velocityY += 0.8; // gravity
     }
@@ -287,7 +305,7 @@ export default function GameCanvas({
     
     // Обновляем игровую логику (комбо, таймеры)
     onUpdateGameLogic();
-  }, [gameState.state, gameState.distance, gameState.gameSpeed, player, obstacles, bonuses, particles, onPlayerUpdate, onObstaclesUpdate, onBonusesUpdate, onParticlesUpdate, onGameStateUpdate, onBonusCollect, onObstacleHit, spawnObstacle, spawnBonus, checkCollision, onUpdateGameLogic]);
+  }, [gameState.state, gameState.distance, gameState.gameSpeed, player, obstacles, bonuses, particles, jumpRequestRef, onPlayerUpdate, onObstaclesUpdate, onBonusesUpdate, onParticlesUpdate, onGameStateUpdate, onBonusCollect, onObstacleHit, spawnObstacle, spawnBonus, checkCollision, onUpdateGameLogic]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;

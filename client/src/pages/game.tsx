@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGameState } from '@/hooks/useGameState';
 import GameCanvas from '@/components/game/GameCanvas';
 import GameUI from '@/components/game/GameUI';
@@ -28,26 +28,11 @@ export default function Game() {
     updateGameLogic
   } = useGameState();
 
+  const jumpRequestRef = useRef(false);
+
   const handleJump = () => {
     if (gameState.state !== 'playing') return;
-    
-    // Обычный прыжок с земли
-    if (player.grounded) {
-      setPlayer(prev => ({
-        ...prev,
-        velocityY: -15,
-        grounded: false,
-        doubleJumpAvailable: true // Восстанавливаем двойной прыжок
-      }));
-    }
-    // Двойной прыжок в воздухе
-    else if (player.doubleJumpAvailable) {
-      setPlayer(prev => ({
-        ...prev,
-        velocityY: -12, // Чуть слабее чем обычный прыжок
-        doubleJumpAvailable: false // Тратим двойной прыжок
-      }));
-    }
+    jumpRequestRef.current = true; // Сигнализируем о запросе на прыжок
   };
 
   const handleCloseEducation = () => {
@@ -70,6 +55,7 @@ export default function Game() {
         obstacles={obstacles}
         bonuses={bonuses}
         particles={particles}
+        jumpRequestRef={jumpRequestRef}
         onPlayerUpdate={setPlayer}
         onObstaclesUpdate={setObstacles}
         onBonusesUpdate={setBonuses}
