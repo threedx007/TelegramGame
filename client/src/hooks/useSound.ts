@@ -33,6 +33,7 @@ export function useSound() {
   const backgroundMusicRef = useRef<{
     oscillator?: OscillatorNode;
     gainNode?: GainNode;
+    bassOscillator?: OscillatorNode;
     isPlaying: boolean;
   }>({ isPlaying: false });
 
@@ -179,39 +180,77 @@ export function useSound() {
       try {
         const ctx = audioContextRef.current;
         
-        // Создаем осциллятор для базовой мелодии
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
+        // Создаем основную мелодию
+        const melodyOsc = ctx.createOscillator();
+        const melodyGain = ctx.createGain();
         
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
+        // Создаем басовую линию для ритма
+        const bassOsc = ctx.createOscillator();
+        const bassGain = ctx.createGain();
         
-        // Низкая громкость для фона
-        gainNode.gain.setValueAtTime(volume * 0.1, ctx.currentTime);
+        // Подключаем мелодию
+        melodyOsc.connect(melodyGain);
+        melodyGain.connect(ctx.destination);
         
-        // Простая повторяющаяся мелодия
-        const melody = [262, 294, 330, 294]; // C4, D4, E4, D4
-        let noteIndex = 0;
+        // Подключаем бас
+        bassOsc.connect(bassGain);
+        bassGain.connect(ctx.destination);
         
-        oscillator.type = 'triangle';
-        oscillator.frequency.setValueAtTime(melody[0], ctx.currentTime);
+        // Настройки громкости
+        melodyGain.gain.setValueAtTime(volume * 0.15, ctx.currentTime);
+        bassGain.gain.setValueAtTime(volume * 0.1, ctx.currentTime);
         
-        // Меняем ноты каждые 2 секунды
-        const changeNote = () => {
+        // Энергичная мелодия в стиле игры
+        const melody = [
+          330, 392, 440, 523,  // E4, G4, A4, C5
+          494, 440, 392, 330,  // B4, A4, G4, E4  
+          349, 415, 494, 587,  // F4, Ab4, B4, D5
+          523, 494, 440, 392   // C5, B4, A4, G4
+        ];
+        
+        // Басовая линия для ритма
+        const bassLine = [131, 131, 165, 165]; // C3, C3, E3, E3
+        
+        let melodyIndex = 0;
+        let bassIndex = 0;
+        
+        // Настройки осцилляторов
+        melodyOsc.type = 'square'; // Более яркий звук
+        bassOsc.type = 'sawtooth';  // Богатый бас
+        
+        melodyOsc.frequency.setValueAtTime(melody[0], ctx.currentTime);
+        bassOsc.frequency.setValueAtTime(bassLine[0], ctx.currentTime);
+        
+        // Быстрая смена нот для динамичности
+        const changeMelodyNote = () => {
           if (backgroundMusicRef.current.isPlaying && audioContextRef.current) {
-            noteIndex = (noteIndex + 1) % melody.length;
-            oscillator.frequency.setTargetAtTime(melody[noteIndex], ctx.currentTime, 0.1);
-            setTimeout(changeNote, 2000);
+            melodyIndex = (melodyIndex + 1) % melody.length;
+            melodyOsc.frequency.setTargetAtTime(melody[melodyIndex], ctx.currentTime, 0.02);
+            setTimeout(changeMelodyNote, 300); // Быстрый темп - каждые 300мс
           }
         };
         
-        oscillator.start();
-        setTimeout(changeNote, 2000);
+        // Басовая линия меняется реже для создания ритма
+        const changeBassNote = () => {
+          if (backgroundMusicRef.current.isPlaying && audioContextRef.current) {
+            bassIndex = (bassIndex + 1) % bassLine.length;
+            bassOsc.frequency.setTargetAtTime(bassLine[bassIndex], ctx.currentTime, 0.05);
+            setTimeout(changeBassNote, 600); // Басовый ритм каждые 600мс
+          }
+        };
+        
+        melodyOsc.start();
+        bassOsc.start();
+        
+        // Запускаем смену нот
+        setTimeout(changeMelodyNote, 300);
+        setTimeout(changeBassNote, 600);
         
         backgroundMusicRef.current = {
-          oscillator,
-          gainNode,
-          isPlaying: true
+          oscillator: melodyOsc, // Сохраняем основной осциллятор для остановки
+          gainNode: melodyGain,
+          isPlaying: true,
+          bassOscillator: bassOsc // Дополнительно сохраняем басовый осциллятор
         };
       } catch (error) {
         console.warn('Ошибка запуска фоновой музыки:', error);
@@ -220,9 +259,14 @@ export function useSound() {
 
     // Остановить фоновую музыку
     stopBackgroundMusic: useCallback(() => {
-      if (backgroundMusicRef.current.isPlaying && backgroundMusicRef.current.oscillator) {
+      if (backgroundMusicRef.current.isPlaying) {
         try {
-          backgroundMusicRef.current.oscillator.stop();
+          if (backgroundMusicRef.current.oscillator) {
+            backgroundMusicRef.current.oscillator.stop();
+          }
+          if (backgroundMusicRef.current.bassOscillator) {
+            backgroundMusicRef.current.bassOscillator.stop();
+          }
         } catch (error) {
           console.warn('Ошибка остановки фоновой музыки:', error);
         }
