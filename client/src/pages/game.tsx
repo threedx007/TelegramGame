@@ -10,6 +10,8 @@ export default function Game() {
     player,
     obstacles,
     bonuses,
+    pits,
+    platforms,
     particles,
     educationalMessage,
     showCombo,
@@ -17,6 +19,8 @@ export default function Game() {
     setPlayer,
     setObstacles,
     setBonuses,
+    setPits,
+    setPlatforms,
     setParticles,
     setEducationalMessage,
     resetGame,
@@ -24,6 +28,7 @@ export default function Game() {
     resumeGame,
     collectBonus,
     hitObstacle,
+    fallIntoPit,
     shareScore,
     updateGameLogic,
     sounds,
@@ -59,15 +64,20 @@ export default function Game() {
         player={player}
         obstacles={obstacles}
         bonuses={bonuses}
+        pits={pits}
+        platforms={platforms}
         particles={particles}
         jumpRequestRef={jumpRequestRef}
         onPlayerUpdate={setPlayer}
         onObstaclesUpdate={setObstacles}
         onBonusesUpdate={setBonuses}
+        onPitsUpdate={setPits}
+        onPlatformsUpdate={setPlatforms}
         onParticlesUpdate={setParticles}
         onGameStateUpdate={setGameState}
         onBonusCollect={collectBonus}
         onObstacleHit={hitObstacle}
+        onPitFall={fallIntoPit}
         onJump={handleJump}
         onUpdateGameLogic={updateGameLogic}
         sounds={sounds}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { Player, Obstacle, Bonus, Particle, GameState } from '@/types/game';
+import { Player, Obstacle, Bonus, Particle, GameState, Pit, Platform } from '@/types/game';
 import { GameSounds } from '@/hooks/useSound';
 
 // Импорты SVG спрайтов с идеальной прозрачностью
@@ -22,15 +22,20 @@ interface GameCanvasProps {
   player: Player;
   obstacles: Obstacle[];
   bonuses: Bonus[];
+  pits: Pit[];
+  platforms: Platform[];
   particles: Particle[];
   jumpRequestRef: React.MutableRefObject<boolean>;
   onPlayerUpdate: (player: Player) => void;
   onObstaclesUpdate: (obstacles: Obstacle[]) => void;
   onBonusesUpdate: (bonuses: Bonus[]) => void;
+  onPitsUpdate: (pits: Pit[]) => void;
+  onPlatformsUpdate: (platforms: Platform[]) => void;
   onParticlesUpdate: (particles: Particle[]) => void;
   onGameStateUpdate: (gameState: GameState) => void;
   onBonusCollect: (bonus: Bonus) => void;
   onObstacleHit: (obstacle: Obstacle) => void;
+  onPitFall: (pit: Pit) => void;
   onJump: () => void;
   onUpdateGameLogic: () => void;
   sounds: GameSounds;
@@ -41,15 +46,20 @@ export default function GameCanvas({
   player,
   obstacles,
   bonuses,
+  pits,
+  platforms,
   particles,
   jumpRequestRef,
   onPlayerUpdate,
   onObstaclesUpdate,
   onBonusesUpdate,
+  onPitsUpdate,
+  onPlatformsUpdate,
   onParticlesUpdate,
   onGameStateUpdate,
   onBonusCollect,
   onObstacleHit,
+  onPitFall,
   onJump,
   onUpdateGameLogic,
   sounds
@@ -180,6 +190,57 @@ export default function GameCanvas({
     };
   }, []);
 
+  const spawnPit = useCallback((canvasWidth: number, canvasHeight: number) => {
+    const groundLevel = canvasHeight - 50; // Уровень земли
+    const pitWidth = 80 + Math.random() * 40; // Ширина ямы 80-120px
+    const pitDepth = 30 + Math.random() * 20; // Глубина ямы 30-50px
+
+    const pit: Pit = {
+      x: canvasWidth + 100,
+      y: groundLevel, // Ямы всегда на уровне земли
+      width: pitWidth,
+      height: 50, // Высота равна высоте земли для визуализации
+      type: 'pit',
+      color: '#2E1B0E', // Темно-коричневый цвет для ямы
+      depth: pitDepth
+    };
+
+    return pit;
+  }, []);
+
+  const spawnPlatform = useCallback((canvasWidth: number, canvasHeight: number) => {
+    const materials: Platform['material'][] = ['stone', 'wood', 'metal'];
+    const material = materials[Math.floor(Math.random() * materials.length)];
+    const colors = {
+      stone: '#808080',
+      wood: '#8B4513', 
+      metal: '#C0C0C0'
+    };
+
+    const platformWidth = 100 + Math.random() * 60; // Ширина платформы 100-160px
+    const groundLevel = canvasHeight - 50;
+    
+    // Платформы на разных высотах для добавления вертикальности
+    const heightVariants = [
+      groundLevel - 80,  // Низкие платформы
+      groundLevel - 120, // Средние платформы
+      groundLevel - 160, // Высокие платформы
+    ];
+    const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
+
+    const platform: Platform = {
+      x: canvasWidth + 120,
+      y: yPosition,
+      width: platformWidth,
+      height: 15, // Толщина платформы
+      type: 'platform',
+      color: colors[material],
+      material
+    };
+
+    return platform;
+  }, []);
+
   const drawPlayer = useCallback((ctx: CanvasRenderingContext2D, player: Player) => {
     if (svgImages.player) {
       // Отрисовка SVG-спрайта игрока
@@ -291,6 +352,66 @@ export default function GameCanvas({
     ctx.restore();
   }, []);
 
+  const drawPit = useCallback((ctx: CanvasRenderingContext2D, pit: Pit) => {
+    ctx.save();
+    
+    // Рисуем яму как темное углубление в земле
+    ctx.fillStyle = pit.color;
+    ctx.fillRect(pit.x, pit.y, pit.width, pit.height);
+    
+    // Добавляем градиент для создания эффекта глубины
+    const gradient = ctx.createLinearGradient(pit.x, pit.y, pit.x, pit.y + pit.height);
+    gradient.addColorStop(0, '#4A4A4A');
+    gradient.addColorStop(0.5, pit.color);
+    gradient.addColorStop(1, '#1A1A1A');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(pit.x + 5, pit.y + 5, pit.width - 10, pit.height - 10);
+    
+    // Рисуем края ямы
+    ctx.strokeStyle = '#8B4513';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(pit.x, pit.y, pit.width, pit.height);
+    
+    ctx.restore();
+  }, []);
+
+  const drawPlatform = useCallback((ctx: CanvasRenderingContext2D, platform: Platform) => {
+    ctx.save();
+    
+    // Основная платформа
+    ctx.fillStyle = platform.color;
+    ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+    
+    // Добавляем текстуру в зависимости от материала
+    if (platform.material === 'stone') {
+      // Каменная текстура
+      ctx.fillStyle = '#696969';
+      for (let i = 0; i < platform.width; i += 20) {
+        ctx.fillRect(platform.x + i, platform.y + 2, 15, 2);
+        ctx.fillRect(platform.x + i + 5, platform.y + 8, 10, 2);
+      }
+    } else if (platform.material === 'wood') {
+      // Деревянная текстура
+      ctx.fillStyle = '#A0522D';
+      ctx.fillRect(platform.x, platform.y + 6, platform.width, 3);
+      for (let i = 0; i < platform.width; i += 25) {
+        ctx.fillRect(platform.x + i, platform.y, 2, platform.height);
+      }
+    } else if (platform.material === 'metal') {
+      // Металлическая текстура
+      ctx.fillStyle = '#A9A9A9';
+      for (let i = 0; i < platform.width; i += 10) {
+        ctx.fillRect(platform.x + i, platform.y + 3, 8, 2);
+      }
+    }
+    
+    // Тень под платформой
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(platform.x + 2, platform.y + platform.height, platform.width - 2, 3);
+    
+    ctx.restore();
+  }, []);
+
   const update = useCallback((deltaTime: number) => {
     if (gameState.state !== 'playing') return;
 
@@ -300,6 +421,8 @@ export default function GameCanvas({
     // Создаем локальные копии массивов для работы  
     let currentObstacles = [...obstacles];
     let currentBonuses = [...bonuses];
+    let currentPits = [...pits];
+    let currentPlatforms = [...platforms];
 
     // Обработка запроса на прыжок
     const updatedPlayer = { ...player };
@@ -326,13 +449,33 @@ export default function GameCanvas({
     }
     updatedPlayer.y += updatedPlayer.velocityY;
 
+    // Platform collision - проверяем коллизии с платформами
+    let onPlatform = false;
+    for (const platform of currentPlatforms) {
+      // Проверяем, приземляется ли игрок на платформу сверху
+      if (updatedPlayer.x + updatedPlayer.width > platform.x && 
+          updatedPlayer.x < platform.x + platform.width &&
+          updatedPlayer.y + updatedPlayer.height >= platform.y && 
+          updatedPlayer.y + updatedPlayer.height <= platform.y + platform.height + 5 &&
+          updatedPlayer.velocityY >= 0) {
+        updatedPlayer.y = platform.y - updatedPlayer.height;
+        updatedPlayer.velocityY = 0;
+        updatedPlayer.grounded = true;
+        updatedPlayer.doubleJumpAvailable = true;
+        onPlatform = true;
+        break;
+      }
+    }
+
     // Ground collision - скорректировано под новую землю и размер игрока
-    const groundY = canvas.height - 50 - updatedPlayer.height; // 50px земли + высота игрока
-    if (updatedPlayer.y >= groundY) {
-      updatedPlayer.y = groundY;
-      updatedPlayer.velocityY = 0;
-      updatedPlayer.grounded = true;
-      updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок при приземлении
+    if (!onPlatform) {
+      const groundY = canvas.height - 50 - updatedPlayer.height; // 50px земли + высота игрока
+      if (updatedPlayer.y >= groundY) {
+        updatedPlayer.y = groundY;
+        updatedPlayer.velocityY = 0;
+        updatedPlayer.grounded = true;
+        updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок при приземлении
+      }
     }
 
     onPlayerUpdate(updatedPlayer);
@@ -396,6 +539,27 @@ export default function GameCanvas({
         }
       }
     }
+    
+    // Спавн ям (реже чем препятствия, только на земле)
+    const pitSpawnRate = 0.008; // Низкий шанс спавна ям
+    if (Math.random() < pitSpawnRate && currentPits.length < 2) {
+      const newPit = spawnPit(canvas.width, canvas.height);
+      // Ямы не должны пересекаться с другими объектами
+      const allObjects = [...currentObstacles, ...currentBonuses, ...currentPits, ...currentPlatforms];
+      if (!checkObjectOverlap(newPit, allObjects)) {
+        currentPits.push(newPit);
+      }
+    }
+    
+    // Спавн платформ (средняя частота спавна)
+    const platformSpawnRate = 0.012; // Умеренный шанс спавна платформ
+    if (Math.random() < platformSpawnRate && currentPlatforms.length < 3) {
+      const newPlatform = spawnPlatform(canvas.width, canvas.height);
+      const allObjects = [...currentObstacles, ...currentBonuses, ...currentPits, ...currentPlatforms];
+      if (!checkObjectOverlap(newPlatform, allObjects)) {
+        currentPlatforms.push(newPlatform);
+      }
+    }
 
     // Update obstacles
     const updatedObstacles = currentObstacles.filter(obstacle => {
@@ -433,10 +597,31 @@ export default function GameCanvas({
       return true;
     });
     
+    // Update pits 
+    const updatedPits = currentPits.filter(pit => {
+      pit.x -= gameState.gameSpeed;
+      if (pit.x + pit.width < 0) return false;
+      
+      // Проверяем коллизии с ямой - если игрок на уровне земли и внутри ямы
+      if (checkCollision(updatedPlayer, pit) && updatedPlayer.grounded) {
+        onPitFall(pit);
+        return false;
+      }
+      return true;
+    });
+    
+    // Update platforms
+    const updatedPlatforms = currentPlatforms.filter(platform => {
+      platform.x -= gameState.gameSpeed;
+      if (platform.x + platform.width < 0) return false;
+      return true;
+    });
     
     // Обновляем состояния
     onObstaclesUpdate(updatedObstacles);
     onBonusesUpdate(updatedBonuses);
+    onPitsUpdate(updatedPits);
+    onPlatformsUpdate(updatedPlatforms);
 
     // Update particles
     const updatedParticles = particles.filter(particle => {
@@ -449,7 +634,7 @@ export default function GameCanvas({
     
     // Обновляем игровую логику (комбо, таймеры)
     onUpdateGameLogic();
-  }, [gameState.state, gameState.distance, gameState.gameSpeed, player, obstacles, bonuses, particles, jumpRequestRef, onPlayerUpdate, onObstaclesUpdate, onBonusesUpdate, onParticlesUpdate, onGameStateUpdate, onBonusCollect, onObstacleHit, spawnObstacle, spawnBonus, checkCollision, checkCollisionWithPadding, onUpdateGameLogic]);
+  }, [gameState.state, gameState.distance, gameState.gameSpeed, player, obstacles, bonuses, pits, platforms, particles, jumpRequestRef, onPlayerUpdate, onObstaclesUpdate, onBonusesUpdate, onPitsUpdate, onPlatformsUpdate, onParticlesUpdate, onGameStateUpdate, onBonusCollect, onObstacleHit, onPitFall, spawnObstacle, spawnBonus, spawnPit, spawnPlatform, checkCollision, checkCollisionWithPadding, onUpdateGameLogic]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -472,9 +657,11 @@ export default function GameCanvas({
     drawPlayer(ctx, player);
     obstacles.forEach(obstacle => drawObstacle(ctx, obstacle));
     bonuses.forEach(bonus => drawBonus(ctx, bonus));
+    pits.forEach(pit => drawPit(ctx, pit));
+    platforms.forEach(platform => drawPlatform(ctx, platform));
     particles.forEach(particle => drawParticle(ctx, particle));
     
-  }, [player, obstacles, bonuses, particles, drawPlayer, drawObstacle, drawBonus, drawParticle]);
+  }, [player, obstacles, bonuses, pits, platforms, particles, drawPlayer, drawObstacle, drawBonus, drawPit, drawPlatform, drawParticle]);
 
   // Удаляем отдельную функцию gameLoop, так как логика перенесена в useEffect
 
