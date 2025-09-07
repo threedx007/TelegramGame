@@ -18,7 +18,7 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
     if (gameState.state === 'playing' && gameState.distance < 100) {
       // Для Telegram WebApp добавляем небольшую задержку, чтобы интерфейс успел прогрузиться
       const isInTelegram = !!(window as any).Telegram?.WebApp;
-      const delay = isInTelegram ? 1000 : 100;
+      const delay = isInTelegram ? 500 : 0; // Уменьшил задержку и убрал для обычных браузеров
       
       const timer = setTimeout(() => {
         setShowTooltip(true);
