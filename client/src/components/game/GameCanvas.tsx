@@ -1,20 +1,20 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { Player, Obstacle, Bonus, Particle, GameState } from '@/types/game';
 
-// Импорты изображений спрайтов (обновленные с прозрачным фоном)
-import playerSprite from '@assets/generated_images/Clean_water_droplet_character_ac21a136.png';
-// Бонусы
-import bacteriaSprite from '@assets/generated_images/Green_bacteria_bonus_sprite_ecc57295.png';
-import bubbleSprite from '@assets/generated_images/White_bubble_bonus_sprite_0b5fd896.png';
-import filterSprite from '@assets/generated_images/Blue_filter_bonus_sprite_86522dfb.png';
-import keySprite from '@assets/generated_images/Golden_key_bonus_sprite_df158532.png';
-// Препятствия
-import fatSprite from '@assets/generated_images/Fat_blob_obstacle_sprite_f375a784.png';
-import wasteSprite from '@assets/generated_images/Waste_matter_obstacle_sprite_fd08a121.png';
-import chemicalSprite from '@assets/generated_images/Chemical_poison_obstacle_sprite_7f4cf5b4.png';
-import iceSprite from '@assets/generated_images/Ice_crystal_obstacle_sprite_f1a82d4b.png';
-import lightningSprite from '@assets/generated_images/Lightning_bolt_obstacle_sprite_2d772c34.png';
-import rootsSprite from '@assets/generated_images/Tree_roots_obstacle_sprite_a34ebd65.png';
+// Импорты SVG спрайтов с идеальной прозрачностью
+import {
+  PlayerSprite,
+  BacteriaSprite,
+  BubbleSprite,
+  FilterSprite,
+  KeySprite,
+  FatSprite,
+  WasteSprite,
+  ChemicalSprite,
+  IceSprite,
+  LightningSprite,
+  RootsSprite,
+} from './GameSprites';
 
 interface GameCanvasProps {
   gameState: GameState;
@@ -56,7 +56,7 @@ export default function GameCanvas({
   const lastTimeRef = useRef<number>(0);
   
   // Состояние для загруженных изображений
-  const [images, setImages] = useState<{
+  const [svgImages, setSvgImages] = useState<{
     player?: HTMLImageElement;
     bonuses?: {
       bacteria?: HTMLImageElement;
@@ -157,10 +157,10 @@ export default function GameCanvas({
   }, []);
 
   const drawPlayer = useCallback((ctx: CanvasRenderingContext2D, player: Player) => {
-    if (images.player) {
-      // Отрисовка спрайта игрока
+    if (svgImages.player) {
+      // Отрисовка SVG-спрайта игрока
       ctx.drawImage(
-        images.player,
+        svgImages.player,
         player.x,
         player.y,
         player.width,
@@ -205,12 +205,12 @@ export default function GameCanvas({
 
       ctx.restore();
     }
-  }, [images.player]);
+  }, [svgImages.player]);
 
   const drawObstacle = useCallback((ctx: CanvasRenderingContext2D, obstacle: Obstacle) => {
-    const obstacleImage = images.obstacles?.[obstacle.type];
+    const obstacleImage = svgImages.obstacles?.[obstacle.type];
     if (obstacleImage) {
-      // Отрисовка спрайта препятствия
+      // Отрисовка SVG-спрайта препятствия
       ctx.drawImage(
         obstacleImage,
         obstacle.x,
@@ -228,12 +228,12 @@ export default function GameCanvas({
       ctx.lineWidth = 2;
       ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     }
-  }, [images.obstacles]);
+  }, [svgImages.obstacles]);
 
   const drawBonus = useCallback((ctx: CanvasRenderingContext2D, bonus: Bonus) => {
-    const bonusImage = images.bonuses?.[bonus.type];
+    const bonusImage = svgImages.bonuses?.[bonus.type];
     if (bonusImage) {
-      // Отрисовка спрайта бонуса
+      // Отрисовка SVG-спрайта бонуса
       ctx.drawImage(
         bonusImage,
         bonus.x,
@@ -255,7 +255,7 @@ export default function GameCanvas({
       
       ctx.restore();
     }
-  }, [images.bonuses]);
+  }, [svgImages.bonuses]);
 
   const drawParticle = useCallback((ctx: CanvasRenderingContext2D, particle: Particle) => {
     ctx.save();
@@ -483,40 +483,78 @@ export default function GameCanvas({
     }
   }, [handleInput]);
 
-  // Загрузка изображений при монтировании компонента
+  // Создание SVG спрайтов при монтировании компонента
   useEffect(() => {
-    const loadImage = (src: string): Promise<HTMLImageElement> => {
+    const svgToImage = (SvgComponent: React.ComponentType<{x: number; y: number; width: number; height: number}>, width: number, height: number): Promise<HTMLImageElement> => {
       return new Promise((resolve, reject) => {
+        // Создаем SVG элемент
+        const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svgElement.setAttribute('width', width.toString());
+        svgElement.setAttribute('height', height.toString());
+        svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+        
+        // Создаем виртуальный div для рендера React компонента
+        const tempDiv = document.createElement('div');
+        
+        // Простое SVG содержимое (без React)
+        const getSvgContent = () => {
+          if (SvgComponent === PlayerSprite) {
+            return `
+              <g>
+                <path d="M 25 5 C 45 5 45 20 45 35 C 45 45 35 45 25 45 C 15 45 5 45 5 35 C 5 20 5 5 25 5 Z" fill="#00A8FF" stroke="#003366" stroke-width="2"/>
+                <ellipse cx="17.5" cy="15" rx="5" ry="7.5" fill="#87CEEB" opacity="0.7"/>
+                <ellipse cx="32.5" cy="12.5" rx="2.5" ry="4" fill="#FFFFFF" opacity="0.9"/>
+                <circle cx="17.5" cy="27.5" r="4" fill="#000000"/>
+                <circle cx="32.5" cy="27.5" r="4" fill="#000000"/>
+                <circle cx="18.5" cy="26" r="1.5" fill="#FFFFFF"/>
+                <circle cx="33.5" cy="26" r="1.5" fill="#FFFFFF"/>
+                <path d="M 15 37.5 Q 25 42.5 35 37.5" stroke="#000000" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <polygon points="7.5,10 9,12.5 7.5,15 6,12.5" fill="#FFFFFF" opacity="0.8"/>
+                <polygon points="42.5,7.5 44,10 42.5,12.5 41,10" fill="#FFFFFF" opacity="0.8"/>
+                <polygon points="45,30 46,31.5 45,33 44,31.5" fill="#FFFFFF" opacity="0.8"/>
+              </g>
+            `;
+          }
+          // Простые фолбэки для остальных
+          return '<circle cx="25" cy="25" r="20" fill="#ccc"/>';
+        };
+        
+        svgElement.innerHTML = getSvgContent();
+        
+        // Конвертируем в изображение
+        const svgData = new XMLSerializer().serializeToString(svgElement);
+        const dataUrl = `data:image/svg+xml;base64,${btoa(svgData)}`;
+        
         const img = new Image();
         img.onload = () => resolve(img);
         img.onerror = reject;
-        img.src = src;
+        img.src = dataUrl;
       });
     };
 
-    const loadAllImages = async () => {
+    const loadAllSvgImages = async () => {
       try {
         const [
           playerImg,
           bacteriaImg, bubbleImg, filterImg, keyImg,
           fatImg, wasteImg, chemicalImg, iceImg, lightningImg, rootsImg
         ] = await Promise.all([
-          loadImage(playerSprite),
+          svgToImage(PlayerSprite, 50, 50),
           // Бонусы
-          loadImage(bacteriaSprite),
-          loadImage(bubbleSprite),
-          loadImage(filterSprite),
-          loadImage(keySprite),
+          svgToImage(BacteriaSprite, 40, 40),
+          svgToImage(BubbleSprite, 40, 40),
+          svgToImage(FilterSprite, 40, 40),
+          svgToImage(KeySprite, 40, 40),
           // Препятствия
-          loadImage(fatSprite),
-          loadImage(wasteSprite),
-          loadImage(chemicalSprite),
-          loadImage(iceSprite),
-          loadImage(lightningSprite),
-          loadImage(rootsSprite)
+          svgToImage(FatSprite, 60, 60),
+          svgToImage(WasteSprite, 60, 60),
+          svgToImage(ChemicalSprite, 60, 60),
+          svgToImage(IceSprite, 60, 60),
+          svgToImage(LightningSprite, 60, 60),
+          svgToImage(RootsSprite, 60, 60)
         ]);
 
-        setImages({
+        setSvgImages({
           player: playerImg,
           bonuses: {
             bacteria: bacteriaImg,
@@ -534,11 +572,11 @@ export default function GameCanvas({
           }
         });
       } catch (error) {
-        console.error('Ошибка загрузки изображений:', error);
+        console.error('Ошибка создания SVG спрайтов:', error);
       }
     };
 
-    loadAllImages();
+    loadAllSvgImages();
   }, []);
 
   useEffect(() => {
