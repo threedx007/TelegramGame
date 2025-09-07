@@ -99,12 +99,6 @@ export default function GameModals({
                 </div>
               </div>
               <div className="bg-gray-50 rounded-lg p-3">
-                <div className="text-sm text-gray-600">Дистанция</div>
-                <div className="text-lg font-bold text-primary" data-testid="text-final-distance">
-                  {Math.floor(gameState.distance)} м
-                </div>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-3">
                 <div className="text-sm text-gray-600">Лучший результат</div>
                 <div className="text-lg font-bold text-yellow-600" data-testid="text-best-score">
                   {gameState.bestScore}

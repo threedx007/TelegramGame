@@ -18,13 +18,21 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
     if (gameState.state === 'playing' && gameState.score < 100) {
       // Для Telegram WebApp добавляем небольшую задержку, чтобы интерфейс успел прогрузиться
       const isInTelegram = !!(window as any).Telegram?.WebApp;
-      const delay = isInTelegram ? 500 : 0; // Уменьшил задержку и убрал для обычных браузеров
+      const delay = isInTelegram ? 500 : 0;
       
       const timer = setTimeout(() => {
         setShowTooltip(true);
       }, delay);
 
-      return () => clearTimeout(timer);
+      // Пропадает через 5 секунд
+      const hideTimer = setTimeout(() => {
+        setShowTooltip(false);
+      }, delay + 5000);
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(hideTimer);
+      };
     } else {
       setShowTooltip(false);
     }
@@ -44,10 +52,10 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
         <div className="pointer-events-auto bg-blue-100/90 backdrop-blur-sm rounded-xl p-3 shadow-lg max-w-xs">
           <div className="text-xs font-bold text-blue-800 mb-1">🏆 Собирайте бонусы:</div>
           <div className="text-xs text-blue-700 space-y-1">
-            <div>🟡 Ключ = 50 очков</div>
-            <div>🟢 Бактерия = 10 очков</div>
-            <div>🔵 Фильтр = 5 очков</div>
-            <div>⚪ Пузырь = 5 очков</div>
+            <div>🗝️ Ключ = 50 очков</div>
+            <div>🧿 Бактерия = 10 очков</div>
+            <div>🔧 Фильтр = 5 очков</div>
+            <div>💭 Пузырь = 5 очков</div>
           </div>
         </div>
       </div>
