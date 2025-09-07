@@ -39,13 +39,65 @@ export default function GameModals({
       {/* Start Screen Modal */}
       {gameState.state === 'start' && (
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-sm mx-4 text-center shadow-2xl">
-            <div className="text-6xl mb-4">💧</div>
-            <h1 className="text-2xl font-bold text-primary mb-2">Септик-Серфер</h1>
-            <p className="text-gray-600 mb-6">Чистая вода</p>
-            <p className="text-sm text-gray-500 mb-6">
-              Помогите Капле Чистюле пройти через систему септика, избегая загрязнений!
-            </p>
+          <div className="bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            {/* Game Title Section */}
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-4">💧</div>
+              <h1 className="text-2xl font-bold text-primary mb-2">Септик-Серфер</h1>
+              <p className="text-gray-600 mb-4">Чистая вода</p>
+              <p className="text-sm text-gray-500 mb-6">
+                Помогите Капле Чистюле пройти через систему септика, избегая загрязнений!
+              </p>
+            </div>
+
+            {/* Advertisement Section */}
+            <div className="border-t border-gray-200 pt-6 mb-6">
+              <div className="flex items-center justify-center mb-4">
+                <div className="text-4xl mr-3">🏠</div>
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800 text-left">
+                    Ваш надёжный помощник
+                  </h2>
+                  <p className="text-sm text-gray-600 text-left">в автономной канализации:</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 mb-4 text-left">
+                <div className="flex items-start space-x-2">
+                  <div className="text-green-600 text-sm mt-0.5">✓</div>
+                  <p className="text-xs text-gray-700">
+                    <span className="font-semibold">Обслуживание и ремонт</span> – продлю срок службы вашего септика!
+                  </p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="text-green-600 text-sm mt-0.5">✓</div>
+                  <p className="text-xs text-gray-700">
+                    <span className="font-semibold">Продажа и монтаж под ключ</span> – за 1 день, быстро, чисто, с гарантией.
+                  </p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="text-green-600 text-sm mt-0.5">✓</div>
+                  <p className="text-xs text-gray-700">
+                    <span className="font-semibold">Аварийная Wi-Fi сигнализация</span> – контроль переполнения онлайн!
+                  </p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="text-green-600 text-sm mt-0.5">✓</div>
+                  <p className="text-xs text-gray-700">
+                    <span className="font-semibold">Дренажные работы</span> – решаю проблемы подтопления участка.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-3 text-center">
+                <div className="text-sm font-bold text-blue-800 mb-1">Контакты для заказа услуг:</div>
+                <div className="text-sm text-blue-700">
+                  <div data-testid="phone-1">📞 8 (985) 478-11-38</div>
+                  <div data-testid="phone-2">📞 8 (985) 991-04-24</div>
+                </div>
+              </div>
+            </div>
+
             <button 
               data-testid="button-start-game"
               onClick={onStartGame}
