@@ -61,7 +61,7 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
 
       {/* Control Instructions */}
       {showTooltip && (
-        <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
+        <div className="absolute bottom-32 left-1/2 transform -translate-x-1/2">
           <div className="bg-white border-2 border-blue-300 rounded-xl p-4 text-center shadow-xl animate-bounce">
             <div className="text-sm font-bold text-blue-800 mb-2">🎮 Управление</div>
             <div className="text-xs font-medium text-blue-700">Тап - прыжок</div>

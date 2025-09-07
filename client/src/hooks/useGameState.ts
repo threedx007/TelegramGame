@@ -64,7 +64,7 @@ export function useGameState() {
 
     setPlayer({
       x: 50,
-      y: window.innerHeight - 130, // Скорректировано под новую землю (80px + размер игрока)
+      y: window.innerHeight - 170, // Скорректировано под новую землю (120px + размер игрока)
       width: 50, // Увеличенный размер игрока для лучшей видимости
       height: 50,
       velocityY: 0,
