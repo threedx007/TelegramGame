@@ -95,7 +95,7 @@ export default function GameCanvas({
 
     // Варианты высот: больше препятствий на земле для принуждения к прыжкам
     // Учитываем размер препятствий чтобы они не уходили под землю
-    const obstacleHeight = 50 + Math.random() * 20; // Предварительный расчет размера
+    const obstacleHeight = 65 + Math.random() * 20; // Увеличенный размер препятствий
     const groundLevel = canvasHeight - 50; // Уровень земли
     const heightVariants = [
       groundLevel - obstacleHeight, // На земле - не уходит под землю
@@ -108,7 +108,7 @@ export default function GameCanvas({
     const obstacle: Obstacle = {
       x: canvasWidth + 100, // Спавним за пределами экрана
       y: yPosition,
-      width: 50 + Math.random() * 20, // Увеличенный размер для лучшей видимости
+      width: 65 + Math.random() * 20, // Увеличенный размер препятствий для лучшего различения
       height: obstacleHeight, // Используем предварительно рассчитанную высоту
       type,
       color: colors[type]
