@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { GameState, Player, Obstacle, Bonus, Particle, EducationalMessage } from '@/types/game';
+import { GameState, Player, Obstacle, Bonus, Particle, EducationalMessage, Pit, Platform } from '@/types/game';
 import { useSound } from './useSound';
 
 const EDUCATIONAL_MESSAGES: Record<string, EducationalMessage> = {
@@ -8,7 +8,8 @@ const EDUCATIONAL_MESSAGES: Record<string, EducationalMessage> = {
   chemical: { emoji: '🧪', title: 'Химическое загрязнение!', text: 'Бытовая химия убивает полезные бактерии в септике.' },
   ice: { emoji: '🧊', title: 'Замерзание!', text: 'Утеплите септик на зиму, чтобы избежать замерзания.' },
   lightning: { emoji: '⚡', title: 'Электрические проблемы!', text: 'Регулярно проверяйте компрессор и электрооборудование.' },
-  roots: { emoji: '🌳', title: 'Корни деревьев!', text: 'Не устанавливайте септик рядом с большими деревьями.' }
+  roots: { emoji: '🌳', title: 'Корни деревьев!', text: 'Не устанавливайте септик рядом с большими деревьями.' },
+  pit: { emoji: '🕳️', title: 'Провал в яму!', text: 'Следите за герметичностью септика! Вода не должна просачиваться наружу.' }
 };
 
 export function useGameState() {
@@ -37,6 +38,8 @@ export function useGameState() {
 
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
   const [bonuses, setBonuses] = useState<Bonus[]>([]);
+  const [pits, setPits] = useState<Pit[]>([]);
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [educationalMessage, setEducationalMessage] = useState<EducationalMessage | null>(null);
   const [showCombo, setShowCombo] = useState(false);
@@ -67,6 +70,8 @@ export function useGameState() {
 
     setObstacles([]);
     setBonuses([]);
+    setPits([]);
+    setPlatforms([]);
     setParticles([]);
     setEducationalMessage(null);
     setShowCombo(false);
@@ -176,6 +181,15 @@ export function useGameState() {
     gameOver();
   }, [sounds, gameOver]);
 
+  const fallIntoPit = useCallback((pit: Pit) => {
+    const message = EDUCATIONAL_MESSAGES['pit'];
+    setEducationalMessage(message);
+    // Play hit sound
+    sounds.hitObstacle();
+    // Игра сразу завершается при падении в яму
+    gameOver();
+  }, [sounds, gameOver]);
+
   const shareScore = useCallback(() => {
     const shareText = `🏆 Я набрал ${gameState.score} очков в игре "Септик-Серфер"! 💧
 
@@ -254,6 +268,8 @@ export function useGameState() {
     player,
     obstacles,
     bonuses,
+    pits,
+    platforms,
     particles,
     educationalMessage,
     showCombo,
@@ -261,6 +277,8 @@ export function useGameState() {
     setPlayer,
     setObstacles,
     setBonuses,
+    setPits,
+    setPlatforms,
     setParticles,
     setEducationalMessage,
     resetGame,
@@ -269,6 +287,7 @@ export function useGameState() {
     gameOver,
     collectBonus,
     hitObstacle,
+    fallIntoPit,
     shareScore,
     updateGameLogic,
     // Sound controls
