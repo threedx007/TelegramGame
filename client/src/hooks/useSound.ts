@@ -16,6 +16,7 @@ export interface GameSounds {
   startBackgroundMusic: () => void;
   stopBackgroundMusic: () => void;
   playGameOverMusic: () => void;
+  initializeAudio: () => void;
 }
 
 export function useSound() {
@@ -37,16 +38,28 @@ export function useSound() {
     isPlaying: boolean;
   }>({ isPlaying: false });
 
-  // Инициализация AudioContext
-  useEffect(() => {
-    if (enabled && !audioContextRef.current) {
+  // Функция инициализации AudioContext (требует пользовательского взаимодействия на мобильных)
+  const initializeAudioContext = useCallback(() => {
+    if (!audioContextRef.current && enabled) {
       try {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        
+        // На мобильных устройствах AudioContext может быть в suspended состоянии
+        if (audioContextRef.current.state === 'suspended') {
+          audioContextRef.current.resume();
+        }
       } catch (error) {
         console.warn('AudioContext не поддерживается:', error);
       }
     }
   }, [enabled]);
+
+  // Инициализация AudioContext
+  useEffect(() => {
+    if (enabled && !audioContextRef.current) {
+      initializeAudioContext();
+    }
+  }, [enabled, initializeAudioContext]);
 
   // Сохранение настроек в localStorage
   useEffect(() => {
@@ -59,7 +72,19 @@ export function useSound() {
 
   // Базовая функция для создания звукового тона
   const playTone = useCallback((frequency: number, duration: number, type: OscillatorType = 'sine', fadeOut: boolean = true) => {
-    if (!enabled || !audioContextRef.current) return;
+    if (!enabled) return;
+    
+    // Инициализируем аудио контекст при первом использовании
+    if (!audioContextRef.current) {
+      initializeAudioContext();
+    }
+    
+    // Проверяем состояние контекста и возобновляем при необходимости
+    if (audioContextRef.current?.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+    
+    if (!audioContextRef.current) return;
 
     try {
       const ctx = audioContextRef.current;
@@ -91,7 +116,19 @@ export function useSound() {
 
   // Функция для создания шумового эффекта
   const playNoise = useCallback((duration: number, filterFreq?: number) => {
-    if (!enabled || !audioContextRef.current) return;
+    if (!enabled) return;
+    
+    // Инициализируем аудио контекст при первом использовании
+    if (!audioContextRef.current) {
+      initializeAudioContext();
+    }
+    
+    // Проверяем состояние контекста и возобновляем при необходимости
+    if (audioContextRef.current?.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+    
+    if (!audioContextRef.current) return;
 
     try {
       const ctx = audioContextRef.current;
@@ -283,7 +320,10 @@ export function useSound() {
       notes.forEach((freq, index) => {
         setTimeout(() => playTone(freq, 0.5, 'sine'), index * 300);
       });
-    }, [enabled, playTone])
+    }, [enabled, playTone]),
+
+    // Инициализация аудио для мобильных устройств
+    initializeAudio: initializeAudioContext
   };
 
   return {

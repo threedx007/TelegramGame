@@ -42,6 +42,9 @@ export default function Game() {
   const jumpRequestRef = useRef(false);
 
   const handleJump = () => {
+    // Инициализируем аудио при первом взаимодействии для мобильных устройств
+    sounds.initializeAudio();
+    
     if (gameState.state !== 'playing') return;
     jumpRequestRef.current = true; // Сигнализируем о запросе на прыжок
   };
