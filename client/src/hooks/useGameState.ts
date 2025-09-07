@@ -37,6 +37,7 @@ export function useGameState() {
   const [educationalMessage, setEducationalMessage] = useState<EducationalMessage | null>(null);
   const [showCombo, setShowCombo] = useState(false);
   const [lastBonusTime, setLastBonusTime] = useState<number>(0);
+  const [comboShowTime, setComboShowTime] = useState<number>(0);
 
   const resetGame = useCallback(() => {
     setGameState(prev => ({
@@ -117,7 +118,7 @@ export function useGameState() {
       
       if (newCombo > 1) {
         setShowCombo(true);
-        setTimeout(() => setShowCombo(false), 2000);
+        setComboShowTime(now);
       }
 
       return {
@@ -147,7 +148,8 @@ export function useGameState() {
   const hitObstacle = useCallback((obstacle: Obstacle) => {
     const message = EDUCATIONAL_MESSAGES[obstacle.type];
     setEducationalMessage(message);
-    setTimeout(() => gameOver(), 1000);
+    // Игра сразу завершается при столкновении
+    gameOver();
   }, [gameOver]);
 
   const shareScore = useCallback(() => {
@@ -167,6 +169,14 @@ export function useGameState() {
   const updateGameLogic = useCallback(() => {
     if (gameState.state === 'playing') {
       const now = Date.now();
+      
+      // Скрываем комбо через 2 секунды показа
+      if (showCombo && comboShowTime > 0 && now - comboShowTime > 2000) {
+        console.log('Hiding combo display');
+        setShowCombo(false);
+        setComboShowTime(0);
+      }
+      
       // Сбрасываем комбо через 3 секунды без бонусов
       if (gameState.combo > 0 && lastBonusTime > 0 && now - lastBonusTime > 3000) {
         console.log('Resetting combo due to timeout');
@@ -174,7 +184,7 @@ export function useGameState() {
         setLastBonusTime(0);
       }
     }
-  }, [gameState.state, gameState.combo, lastBonusTime]);
+  }, [gameState.state, gameState.combo, lastBonusTime, showCombo, comboShowTime]);
 
   return {
     gameState,
