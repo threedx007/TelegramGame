@@ -68,7 +68,7 @@ export default function GameCanvas({
     ];
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
-    return {
+    const obstacle: Obstacle = {
       x: canvasWidth + 100, // Спавним за пределами экрана
       y: yPosition,
       width: 30 + Math.random() * 20,
@@ -76,6 +76,15 @@ export default function GameCanvas({
       type,
       color: colors[type]
     };
+
+    // Добавляем движение для воздушных препятствий (30% шанс)
+    if (yPosition < canvasHeight - 150 && Math.random() < 0.3) {
+      obstacle.velocityY = 1 + Math.random() * 2; // Скорость движения 1-3 пикселя/кадр
+      obstacle.oscillationCenter = yPosition;
+      obstacle.oscillationRange = 50 + Math.random() * 30; // Радиус колебаний 50-80 пикселей
+    }
+
+    return obstacle;
   }, []);
 
   const spawnBonus = useCallback((canvasWidth: number, canvasHeight: number) => {
@@ -248,17 +257,18 @@ export default function GameCanvas({
       });
     };
 
-    // Спавн препятствий (более частый спавн для динамичности)
-    const obstacleSpawnRate = Math.max(0.025 - gameState.level * 0.001, 0.015);
-    if (Math.random() < obstacleSpawnRate && currentObstacles.length < 6) {
+    // Спавн препятствий (прогрессивное увеличение сложности)
+    const obstacleSpawnRate = Math.min(0.025 + gameState.level * 0.002, 0.045); // Частота растет с уровнем
+    const maxObstacles = Math.min(6 + Math.floor(gameState.level / 3), 10); // Максимум препятствий растет с уровнем
+    if (Math.random() < obstacleSpawnRate && currentObstacles.length < maxObstacles) {
       const newObstacle = spawnObstacle(canvas.width, canvas.height);
       if (!checkObjectOverlap(newObstacle, [...currentObstacles, ...currentBonuses])) {
         currentObstacles.push(newObstacle);
       }
     }
     
-    // Спавн бонусов (увеличили частоту)
-    const bonusSpawnRate = 0.012;
+    // Спавн бонусов (с учетом сложности - чем выше уровень, тем меньше бонусов)
+    const bonusSpawnRate = Math.max(0.015 - gameState.level * 0.001, 0.008);
     if (Math.random() < bonusSpawnRate && currentBonuses.length < 2) {
       const newBonus = spawnBonus(canvas.width, canvas.height);
       if (!checkObjectOverlap(newBonus, [...currentObstacles, ...currentBonuses])) {
@@ -288,6 +298,18 @@ export default function GameCanvas({
     // Update obstacles
     const updatedObstacles = currentObstacles.filter(obstacle => {
       obstacle.x -= gameState.gameSpeed;
+      
+      // Обновляем движение по вертикали для движущихся препятствий
+      if (obstacle.velocityY !== undefined && obstacle.oscillationCenter !== undefined && obstacle.oscillationRange !== undefined) {
+        obstacle.y += obstacle.velocityY;
+        
+        // Отскок от границ колебаний
+        if (obstacle.y <= obstacle.oscillationCenter - obstacle.oscillationRange || 
+            obstacle.y >= obstacle.oscillationCenter + obstacle.oscillationRange) {
+          obstacle.velocityY = -obstacle.velocityY;
+        }
+      }
+      
       if (obstacle.x + obstacle.width < 0) return false;
       
       if (checkCollision(updatedPlayer, obstacle)) {

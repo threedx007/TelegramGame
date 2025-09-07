@@ -20,6 +20,9 @@ export interface GameObject {
 
 export interface Obstacle extends GameObject {
   type: 'fat' | 'waste' | 'chemical' | 'ice' | 'lightning' | 'roots';
+  velocityY?: number; // Скорость движения по вертикали
+  oscillationCenter?: number; // Центр колебаний
+  oscillationRange?: number; // Радиус колебаний
 }
 
 export interface Bonus extends GameObject {
