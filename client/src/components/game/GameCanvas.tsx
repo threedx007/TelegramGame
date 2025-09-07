@@ -81,6 +81,27 @@ export default function GameCanvas({
            rect1.y + rect1.height > rect2.y;
   }, []);
 
+  // Функция проверки столкновений с уменьшенной областью для более точного определения
+  const checkCollisionWithPadding = useCallback((rect1: any, rect2: any, paddingPercent: number = 0.25) => {
+    // Уменьшаем область второго объекта (препятствия) на указанный процент
+    const padding = {
+      width: rect2.width * paddingPercent,
+      height: rect2.height * paddingPercent
+    };
+    
+    const adjustedRect2 = {
+      x: rect2.x + padding.width / 2,
+      y: rect2.y + padding.height / 2,
+      width: rect2.width - padding.width,
+      height: rect2.height - padding.height
+    };
+    
+    return rect1.x < adjustedRect2.x + adjustedRect2.width &&
+           rect1.x + rect1.width > adjustedRect2.x &&
+           rect1.y < adjustedRect2.y + adjustedRect2.height &&
+           rect1.y + rect1.height > adjustedRect2.y;
+  }, []);
+
   const spawnObstacle = useCallback((canvasWidth: number, canvasHeight: number) => {
     const types: Obstacle['type'][] = ['fat', 'waste', 'chemical', 'ice', 'lightning', 'roots'];
     const type = types[Math.floor(Math.random() * types.length)];
@@ -388,7 +409,7 @@ export default function GameCanvas({
       
       if (obstacle.x + obstacle.width < 0) return false;
       
-      if (checkCollision(updatedPlayer, obstacle)) {
+      if (checkCollisionWithPadding(updatedPlayer, obstacle, 0.3)) {
         onObstacleHit(obstacle);
         return false;
       }
@@ -423,7 +444,7 @@ export default function GameCanvas({
     
     // Обновляем игровую логику (комбо, таймеры)
     onUpdateGameLogic();
-  }, [gameState.state, gameState.distance, gameState.gameSpeed, player, obstacles, bonuses, particles, jumpRequestRef, onPlayerUpdate, onObstaclesUpdate, onBonusesUpdate, onParticlesUpdate, onGameStateUpdate, onBonusCollect, onObstacleHit, spawnObstacle, spawnBonus, checkCollision, onUpdateGameLogic]);
+  }, [gameState.state, gameState.distance, gameState.gameSpeed, player, obstacles, bonuses, particles, jumpRequestRef, onPlayerUpdate, onObstaclesUpdate, onBonusesUpdate, onParticlesUpdate, onGameStateUpdate, onBonusCollect, onObstacleHit, spawnObstacle, spawnBonus, checkCollision, checkCollisionWithPadding, onUpdateGameLogic]);
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
