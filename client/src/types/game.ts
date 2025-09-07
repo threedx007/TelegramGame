@@ -7,6 +7,7 @@ export interface Player {
   grounded: boolean;
   color: string;
   doubleJumpAvailable: boolean; // Можно ли использовать двойной прыжок
+  jumpsRemaining: number; // Количество оставшихся прыжков (0, 1 или 2)
 }
 
 export interface GameObject {

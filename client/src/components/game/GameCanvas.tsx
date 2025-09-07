@@ -427,18 +427,22 @@ export default function GameCanvas({
     // Обработка запроса на прыжок
     const updatedPlayer = { ...player };
     if (jumpRequestRef.current) {
-      // Обычный прыжок с земли
-      if (updatedPlayer.grounded) {
-        updatedPlayer.velocityY = -18; // Увеличили силу прыжка для больших спрайтов
-        updatedPlayer.grounded = false;
-        updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок
-        sounds.jump();
-      }
-      // Двойной прыжок в воздухе
-      else if (updatedPlayer.doubleJumpAvailable) {
-        updatedPlayer.velocityY = -15; // Увеличили силу двойного прыжка
-        updatedPlayer.doubleJumpAvailable = false; // Тратим двойной прыжок
-        sounds.doubleJump();
+      // Прыжок доступен, если есть оставшиеся прыжки
+      if (updatedPlayer.jumpsRemaining > 0) {
+        // Первый прыжок (с земли или платформы)
+        if (updatedPlayer.jumpsRemaining === 2) {
+          updatedPlayer.velocityY = -18;
+          updatedPlayer.grounded = false;
+          updatedPlayer.jumpsRemaining = 1;
+          sounds.jump();
+        }
+        // Второй прыжок (двойной прыжок в воздухе)
+        else if (updatedPlayer.jumpsRemaining === 1) {
+          updatedPlayer.velocityY = -15;
+          updatedPlayer.jumpsRemaining = 0;
+          updatedPlayer.doubleJumpAvailable = false; // Для совместимости
+          sounds.doubleJump();
+        }
       }
       jumpRequestRef.current = false; // Сбрасываем запрос
     }
@@ -486,7 +490,8 @@ export default function GameCanvas({
         updatedPlayer.y = platformTop - updatedPlayer.height;
         updatedPlayer.velocityY = 0;
         updatedPlayer.grounded = true;
-        updatedPlayer.doubleJumpAvailable = true;
+        updatedPlayer.doubleJumpAvailable = true; // Для совместимости
+        updatedPlayer.jumpsRemaining = 2; // Восстанавливаем все прыжки
         onPlatform = true;
         currentPlatformY = platformTop;
         break;
@@ -500,7 +505,8 @@ export default function GameCanvas({
         updatedPlayer.y = groundY;
         updatedPlayer.velocityY = 0;
         updatedPlayer.grounded = true;
-        updatedPlayer.doubleJumpAvailable = true;
+        updatedPlayer.doubleJumpAvailable = true; // Для совместимости
+        updatedPlayer.jumpsRemaining = 2; // Восстанавливаем все прыжки
       } else {
         // Игрок в воздухе - не на земле
         updatedPlayer.grounded = false;
@@ -521,7 +527,8 @@ export default function GameCanvas({
       }
       if (!platformUnder) {
         updatedPlayer.grounded = false; // Игрок начинает падать
-        updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок при сходе с платформы
+        updatedPlayer.doubleJumpAvailable = true; // Для совместимости
+        updatedPlayer.jumpsRemaining = 2; // Полный набор прыжков при сходе с платформы!
       }
     }
 
