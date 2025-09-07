@@ -194,21 +194,16 @@ export default function GameCanvas({
     // Обработка запроса на прыжок
     const updatedPlayer = { ...player };
     if (jumpRequestRef.current) {
-      console.log('Jump request received! Player grounded:', updatedPlayer.grounded, 'doubleJumpAvailable:', updatedPlayer.doubleJumpAvailable);
       // Обычный прыжок с земли
       if (updatedPlayer.grounded) {
-        console.log('Ground jump executed');
         updatedPlayer.velocityY = -15;
         updatedPlayer.grounded = false;
         updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок
       }
       // Двойной прыжок в воздухе
       else if (updatedPlayer.doubleJumpAvailable) {
-        console.log('Double jump executed!');
         updatedPlayer.velocityY = -12; // Чуть слабее чем обычный прыжок
         updatedPlayer.doubleJumpAvailable = false; // Тратим двойной прыжок
-      } else {
-        console.log('Jump rejected - not grounded and no double jump available');
       }
       jumpRequestRef.current = false; // Сбрасываем запрос
     }
@@ -353,6 +348,11 @@ export default function GameCanvas({
     }
   }, [gameState.state, onJump]);
 
+  const handleMouseDown = useCallback((e: MouseEvent) => {
+    e.preventDefault();
+    handleInput();
+  }, [handleInput]);
+
   const handleTouchStart = useCallback((e: TouchEvent) => {
     e.preventDefault();
     handleInput();
@@ -370,7 +370,7 @@ export default function GameCanvas({
     if (!canvas) return;
 
     // Set up event listeners
-    canvas.addEventListener('click', handleInput);
+    canvas.addEventListener('mousedown', handleMouseDown);
     canvas.addEventListener('touchstart', handleTouchStart);
     document.addEventListener('keydown', handleKeyDown);
     window.addEventListener('resize', resizeCanvas);
@@ -379,7 +379,7 @@ export default function GameCanvas({
     resizeCanvas();
 
     return () => {
-      canvas.removeEventListener('click', handleInput);
+      canvas.removeEventListener('mousedown', handleMouseDown);
       canvas.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('resize', resizeCanvas);
@@ -388,7 +388,7 @@ export default function GameCanvas({
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [handleInput, handleTouchStart, handleKeyDown, resizeCanvas]);
+  }, [handleMouseDown, handleTouchStart, handleKeyDown, resizeCanvas]);
 
   // Game loop
   const gameLoop = useCallback((currentTime: number) => {
