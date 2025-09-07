@@ -132,7 +132,7 @@ export default function GameCanvas({
     // Варианты высот: больше препятствий на земле для принуждения к прыжкам
     // Учитываем размер препятствий чтобы они не уходили под землю
     const obstacleHeight = 65 + Math.random() * 20; // Увеличенный размер препятствий
-    const groundLevel = canvasHeight - 50; // Уровень земли
+    const groundLevel = canvasHeight - 80; // Уровень земли (увеличен для мобильных)
     const heightVariants = [
       groundLevel - obstacleHeight, // На земле - не уходит под землю
       groundLevel - obstacleHeight, // На земле (дублируем для увеличения вероятности)
@@ -173,7 +173,7 @@ export default function GameCanvas({
     // Бонусы на достижимых высотах (с учетом двойного прыжка)
     // Учитываем размер бонусов чтобы они не уходили под землю
     const bonusHeight = 40;
-    const groundLevel = canvasHeight - 50; // Уровень земли
+    const groundLevel = canvasHeight - 80; // Уровень земли (увеличен для мобильных)
     const heightVariants = [
       groundLevel - bonusHeight, // Низко - не уходит под землю
       canvasHeight - 160, // Средне
@@ -193,7 +193,7 @@ export default function GameCanvas({
   }, []);
 
   const spawnPit = useCallback((canvasWidth: number, canvasHeight: number) => {
-    const groundLevel = canvasHeight - 50; // Уровень земли
+    const groundLevel = canvasHeight - 80; // Уровень земли (увеличен для мобильных)
     const pitWidth = 80 + Math.random() * 40; // Ширина ямы 80-120px
     const pitDepth = 30 + Math.random() * 20; // Глубина ямы 30-50px
 
@@ -463,7 +463,7 @@ export default function GameCanvas({
     for (const pit of currentPits) {
       if (updatedPlayer.x + updatedPlayer.width > pit.x && 
           updatedPlayer.x < pit.x + pit.width) {
-        const groundY = canvas.height - 50 - updatedPlayer.height;
+        const groundY = canvas.height - 80 - updatedPlayer.height;
         // Если игрок на уровне земли и в области ямы
         if (updatedPlayer.y >= groundY) {
           // Игрок проваливается в яму
@@ -505,7 +505,7 @@ export default function GameCanvas({
 
     // Ground collision - только если не на платформе и не в яме
     if (!onPlatform && !inPit) {
-      const groundY = canvas.height - 50 - updatedPlayer.height; // 50px земли + высота игрока
+      const groundY = canvas.height - 80 - updatedPlayer.height; // 80px земли + высота игрока
       if (updatedPlayer.y >= groundY) {
         updatedPlayer.y = groundY;
         updatedPlayer.velocityY = 0;
@@ -710,7 +710,7 @@ export default function GameCanvas({
 
     // Draw ground - меньше места, ближе к низу
     ctx.fillStyle = '#2E8B57';
-    ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
+    ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
 
     // Draw game objects
     drawPlayer(ctx, player);
