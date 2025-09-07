@@ -126,31 +126,31 @@ export default function GameCanvas({
   }, []);
 
   const drawObstacle = useCallback((ctx: CanvasRenderingContext2D, obstacle: Obstacle) => {
+    console.log('Drawing obstacle at:', obstacle.x, obstacle.y, 'size:', obstacle.width, 'x', obstacle.height);
+    
+    // Рисуем препятствие
     ctx.fillStyle = obstacle.color;
     ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     
-    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-    ctx.lineWidth = 2;
+    // Очень толстая черная рамка для видимости
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 5;
     ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
   }, []);
 
   const drawBonus = useCallback((ctx: CanvasRenderingContext2D, bonus: Bonus) => {
-    ctx.save();
-    ctx.fillStyle = bonus.color;
+    console.log('Drawing bonus at:', bonus.x, bonus.y, 'type:', bonus.type);
     
-    if (bonus.type === 'bacteria') {
-      ctx.beginPath();
-      ctx.arc(bonus.x + 12, bonus.y + 12, 12, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (bonus.type === 'bubble') {
-      ctx.strokeStyle = bonus.color;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(bonus.x + 12, bonus.y + 12, 10, 0, Math.PI * 2);
-      ctx.stroke();
-    } else {
-      ctx.fillRect(bonus.x, bonus.y, bonus.width, bonus.height);
-    }
+    ctx.save();
+    
+    // Рисуем бонус как большой квадрат для видимости
+    ctx.fillStyle = bonus.color;
+    ctx.fillRect(bonus.x, bonus.y, bonus.width, bonus.height);
+    
+    // Очень толстая черная рамка
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(bonus.x, bonus.y, bonus.width, bonus.height);
     
     ctx.restore();
   }, []);
@@ -170,6 +170,10 @@ export default function GameCanvas({
 
     const canvas = canvasRef.current;
     if (!canvas) return;
+    
+    // Создаем локальные копии массивов для работы  
+    let currentObstacles = [...obstacles];
+    let currentBonuses = [...bonuses];
 
     // Update player physics
     const updatedPlayer = { ...player };
@@ -200,18 +204,36 @@ export default function GameCanvas({
       gameSpeed: newSpeed
     });
 
-    // Spawn obstacles and bonuses
-    if (Math.random() < 0.03) { // Уменьшили немного чтобы не спамить
-      const newObstacle = spawnObstacle(canvas.width, canvas.height);
-      onObstaclesUpdate([...obstacles, newObstacle]);
+    // Принудительно создаем объекты для тестирования  
+    if (currentObstacles.length === 0 && gameState.distance > 50) {
+      const testObstacle = {
+        x: 600,
+        y: canvas.height - 250,
+        width: 80,
+        height: 80,
+        type: 'fat' as const,
+        color: '#FF0000' // Ярко-красный для видимости
+      };
+      console.log('Force creating LARGE RED test obstacle:', testObstacle);
+      currentObstacles.push(testObstacle);
     }
-    if (Math.random() < 0.02) {
-      const newBonus = spawnBonus(canvas.width, canvas.height);
-      onBonusesUpdate([...bonuses, newBonus]);
+    
+    if (currentBonuses.length === 0 && gameState.distance > 100) {
+      const testBonus = {
+        x: 500,
+        y: canvas.height - 220,
+        width: 60,
+        height: 60,
+        type: 'bacteria' as const,
+        color: '#00FF00', // Ярко-зеленый для видимости
+        value: 10
+      };
+      console.log('Force creating LARGE GREEN test bonus:', testBonus);
+      currentBonuses.push(testBonus);
     }
 
     // Update obstacles
-    const updatedObstacles = obstacles.filter(obstacle => {
+    const updatedObstacles = currentObstacles.filter(obstacle => {
       obstacle.x -= gameState.gameSpeed;
       if (obstacle.x + obstacle.width < 0) return false;
       
@@ -221,10 +243,9 @@ export default function GameCanvas({
       }
       return true;
     });
-    onObstaclesUpdate(updatedObstacles);
-
+    
     // Update bonuses
-    const updatedBonuses = bonuses.filter(bonus => {
+    const updatedBonuses = currentBonuses.filter(bonus => {
       bonus.x -= gameState.gameSpeed;
       if (bonus.x + bonus.width < 0) return false;
       
@@ -234,6 +255,12 @@ export default function GameCanvas({
       }
       return true;
     });
+    
+    console.log('Before update - obstacles:', currentObstacles.length, 'bonuses:', currentBonuses.length);
+    console.log('After update - obstacles:', updatedObstacles.length, 'bonuses:', updatedBonuses.length);
+    
+    // Обновляем состояния
+    onObstaclesUpdate(updatedObstacles);
     onBonusesUpdate(updatedBonuses);
 
     // Update particles
@@ -269,7 +296,12 @@ export default function GameCanvas({
     bonuses.forEach(bonus => drawBonus(ctx, bonus));
     particles.forEach(particle => drawParticle(ctx, particle));
     
-    // Убираем отладочные сообщения для чистоты
+    // Отладочная информация
+    if (obstacles.length > 0 || bonuses.length > 0) {
+      console.log('Drawing - obstacles:', obstacles.length, 'bonuses:', bonuses.length);
+      if (obstacles.length > 0) console.log('First obstacle:', obstacles[0]);
+      if (bonuses.length > 0) console.log('First bonus:', bonuses[0]);
+    }
   }, [player, obstacles, bonuses, particles, drawPlayer, drawObstacle, drawBonus, drawParticle]);
 
   // Удаляем отдельную функцию gameLoop, так как логика перенесена в useEffect
