@@ -170,8 +170,6 @@ export default function GameCanvas({
 
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
-    console.log('Update called with', obstacles.length, 'obstacles,', bonuses.length, 'bonuses');
 
     // Update player physics
     const updatedPlayer = { ...player };
@@ -223,7 +221,6 @@ export default function GameCanvas({
       }
       return true;
     });
-    console.log('Obstacles after update:', updatedObstacles.length, 'from', obstacles.length);
     onObstaclesUpdate(updatedObstacles);
 
     // Update bonuses
@@ -272,13 +269,7 @@ export default function GameCanvas({
     bonuses.forEach(bonus => drawBonus(ctx, bonus));
     particles.forEach(particle => drawParticle(ctx, particle));
     
-    // Debug info - показываем позиции первых объектов
-    if (obstacles.length > 0) {
-      console.log('Drawing obstacles:', obstacles.map(o => ({x: o.x, y: o.y, type: o.type})));
-    }
-    if (bonuses.length > 0) {
-      console.log('Drawing bonuses:', bonuses.map(b => ({x: b.x, y: b.y, type: b.type})));
-    }
+    // Убираем отладочные сообщения для чистоты
   }, [player, obstacles, bonuses, particles, drawPlayer, drawObstacle, drawBonus, drawParticle]);
 
   // Удаляем отдельную функцию gameLoop, так как логика перенесена в useEffect
@@ -334,111 +325,26 @@ export default function GameCanvas({
     };
   }, [handleInput, handleTouchStart, handleKeyDown, resizeCanvas]);
 
+  // Game loop
+  const gameLoop = useCallback((currentTime: number) => {
+    const deltaTime = currentTime - lastTimeRef.current;
+    lastTimeRef.current = currentTime;
+
+    if (gameState.state === 'playing') {
+      update(deltaTime);
+      draw();
+      animationFrameRef.current = requestAnimationFrame(gameLoop);
+    }
+  }, [gameState.state, update, draw]);
+
   // Game loop management
   useEffect(() => {
-    if (gameState.state !== 'playing') {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = undefined;
-      }
-      return;
+    if (gameState.state === 'playing') {
+      animationFrameRef.current = requestAnimationFrame(gameLoop);
+    } else if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
     }
-
-    const gameLoop = (currentTime: number) => {
-      const deltaTime = currentTime - lastTimeRef.current;
-      lastTimeRef.current = currentTime;
-
-      // Прямые вызовы без зависимостей
-      if (gameState.state !== 'playing') return;
-
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-
-      console.log('Game loop running with', obstacles.length, 'obstacles,', bonuses.length, 'bonuses');
-
-      // Update player physics
-      const updatedPlayer = { ...player };
-      if (!updatedPlayer.grounded) {
-        updatedPlayer.velocityY += 0.8; // gravity
-      }
-      updatedPlayer.y += updatedPlayer.velocityY;
-
-      // Ground collision
-      const groundY = canvas.height - 150;
-      if (updatedPlayer.y >= groundY) {
-        updatedPlayer.y = groundY;
-        updatedPlayer.velocityY = 0;
-        updatedPlayer.grounded = true;
-      }
-
-      onPlayerUpdate(updatedPlayer);
-
-      // Update game state
-      const newDistance = gameState.distance + gameState.gameSpeed;
-      const newLevel = Math.floor(newDistance / 500) + 1;
-      const newSpeed = Math.min(2 + (newLevel - 1) * 0.5, 8);
-
-      onGameStateUpdate({
-        ...gameState,
-        distance: newDistance,
-        level: newLevel,
-        gameSpeed: newSpeed
-      });
-
-      // Spawn obstacles and bonuses
-      if (Math.random() < 0.03) {
-        const newObstacle = spawnObstacle(canvas.width, canvas.height);
-        onObstaclesUpdate([...obstacles, newObstacle]);
-      }
-      if (Math.random() < 0.02) {
-        const newBonus = spawnBonus(canvas.width, canvas.height);
-        onBonusesUpdate([...bonuses, newBonus]);
-      }
-
-      // Update obstacles
-      const updatedObstacles = obstacles.filter(obstacle => {
-        obstacle.x -= gameState.gameSpeed;
-        if (obstacle.x + obstacle.width < 0) return false;
-        
-        if (checkCollision(updatedPlayer, obstacle)) {
-          onObstacleHit(obstacle);
-          return false;
-        }
-        return true;
-      });
-      onObstaclesUpdate(updatedObstacles);
-
-      // Update bonuses
-      const updatedBonuses = bonuses.filter(bonus => {
-        bonus.x -= gameState.gameSpeed;
-        if (bonus.x + bonus.width < 0) return false;
-        
-        if (checkCollision(updatedPlayer, bonus)) {
-          onBonusCollect(bonus);
-          return false;
-        }
-        return true;
-      });
-      onBonusesUpdate(updatedBonuses);
-
-      // Update particles
-      const updatedParticles = particles.filter(particle => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-        particle.life--;
-        return particle.life > 0;
-      });
-      onParticlesUpdate(updatedParticles);
-
-      // Draw
-      draw();
-
-      if (gameState.state === 'playing') {
-        animationFrameRef.current = requestAnimationFrame(gameLoop);
-      }
-    };
-
-    animationFrameRef.current = requestAnimationFrame(gameLoop);
 
     return () => {
       if (animationFrameRef.current) {
@@ -446,7 +352,7 @@ export default function GameCanvas({
         animationFrameRef.current = undefined;
       }
     };
-  }, [gameState.state]);
+  }, [gameState.state, gameLoop]);
 
   return (
     <canvas
