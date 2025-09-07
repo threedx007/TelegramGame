@@ -2,9 +2,19 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { Player, Obstacle, Bonus, Particle, GameState } from '@/types/game';
 
 // Импорты изображений спрайтов
-import bonusSprites from '@assets/generated_images/Game_bonus_sprites_collection_ef5bcca5.png';
-import obstacleSprites from '@assets/generated_images/Game_obstacle_sprites_collection_f5f7d759.png';
-import playerSprite from '@assets/generated_images/Water_droplet_main_character_c721555f.png';
+import playerSprite from '@assets/generated_images/Clean_water_droplet_player_6e33cbaa.png';
+// Бонусы
+import bacteriaSprite from '@assets/generated_images/Green_bacteria_bonus_sprite_8ca6995c.png';
+import bubbleSprite from '@assets/generated_images/White_air_bubble_sprite_f778449b.png';
+import filterSprite from '@assets/generated_images/Blue_water_filter_sprite_b8f24807.png';
+import keySprite from '@assets/generated_images/Golden_key_bonus_sprite_efbc05e4.png';
+// Препятствия
+import fatSprite from '@assets/generated_images/Fat_blob_obstacle_sprite_042a1a74.png';
+import wasteSprite from '@assets/generated_images/Waste_matter_obstacle_sprite_7afddf55.png';
+import chemicalSprite from '@assets/generated_images/Chemical_poison_obstacle_sprite_da186ac2.png';
+import iceSprite from '@assets/generated_images/Ice_crystal_obstacle_sprite_0d81825b.png';
+import lightningSprite from '@assets/generated_images/Lightning_bolt_obstacle_sprite_354424f7.png';
+import rootsSprite from '@assets/generated_images/Tree_roots_obstacle_sprite_ca95d5c5.png';
 
 interface GameCanvasProps {
   gameState: GameState;
@@ -48,8 +58,20 @@ export default function GameCanvas({
   // Состояние для загруженных изображений
   const [images, setImages] = useState<{
     player?: HTMLImageElement;
-    bonuses?: HTMLImageElement;
-    obstacles?: HTMLImageElement;
+    bonuses?: {
+      bacteria?: HTMLImageElement;
+      bubble?: HTMLImageElement;
+      filter?: HTMLImageElement;
+      key?: HTMLImageElement;
+    };
+    obstacles?: {
+      fat?: HTMLImageElement;
+      waste?: HTMLImageElement;
+      chemical?: HTMLImageElement;
+      ice?: HTMLImageElement;
+      lightning?: HTMLImageElement;
+      roots?: HTMLImageElement;
+    };
   }>({});
 
   const checkCollision = useCallback((rect1: any, rect2: any) => {
@@ -180,10 +202,11 @@ export default function GameCanvas({
   }, [images.player]);
 
   const drawObstacle = useCallback((ctx: CanvasRenderingContext2D, obstacle: Obstacle) => {
-    if (images.obstacles) {
+    const obstacleImage = images.obstacles?.[obstacle.type];
+    if (obstacleImage) {
       // Отрисовка спрайта препятствия
       ctx.drawImage(
-        images.obstacles,
+        obstacleImage,
         obstacle.x,
         obstacle.y,
         obstacle.width,
@@ -202,10 +225,11 @@ export default function GameCanvas({
   }, [images.obstacles]);
 
   const drawBonus = useCallback((ctx: CanvasRenderingContext2D, bonus: Bonus) => {
-    if (images.bonuses) {
+    const bonusImage = images.bonuses?.[bonus.type];
+    if (bonusImage) {
       // Отрисовка спрайта бонуса
       ctx.drawImage(
-        images.bonuses,
+        bonusImage,
         bonus.x,
         bonus.y,
         bonus.width,
@@ -466,16 +490,42 @@ export default function GameCanvas({
 
     const loadAllImages = async () => {
       try {
-        const [playerImg, bonusesImg, obstaclesImg] = await Promise.all([
+        const [
+          playerImg,
+          bacteriaImg, bubbleImg, filterImg, keyImg,
+          fatImg, wasteImg, chemicalImg, iceImg, lightningImg, rootsImg
+        ] = await Promise.all([
           loadImage(playerSprite),
-          loadImage(bonusSprites),
-          loadImage(obstacleSprites)
+          // Бонусы
+          loadImage(bacteriaSprite),
+          loadImage(bubbleSprite),
+          loadImage(filterSprite),
+          loadImage(keySprite),
+          // Препятствия
+          loadImage(fatSprite),
+          loadImage(wasteSprite),
+          loadImage(chemicalSprite),
+          loadImage(iceSprite),
+          loadImage(lightningSprite),
+          loadImage(rootsSprite)
         ]);
 
         setImages({
           player: playerImg,
-          bonuses: bonusesImg,
-          obstacles: obstaclesImg
+          bonuses: {
+            bacteria: bacteriaImg,
+            bubble: bubbleImg,
+            filter: filterImg,
+            key: keyImg
+          },
+          obstacles: {
+            fat: fatImg,
+            waste: wasteImg,
+            chemical: chemicalImg,
+            ice: iceImg,
+            lightning: lightningImg,
+            roots: rootsImg
+          }
         });
       } catch (error) {
         console.error('Ошибка загрузки изображений:', error);
