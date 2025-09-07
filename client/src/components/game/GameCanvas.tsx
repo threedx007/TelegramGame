@@ -94,9 +94,12 @@ export default function GameCanvas({
     };
 
     // Варианты высот: больше препятствий на земле для принуждения к прыжкам
+    // Учитываем размер препятствий чтобы они не уходили под землю
+    const obstacleHeight = 50 + Math.random() * 20; // Предварительный расчет размера
+    const groundLevel = canvasHeight - 50; // Уровень земли
     const heightVariants = [
-      canvasHeight - 70, // На земле - нужно прыгать (скорректировано под новую землю)
-      canvasHeight - 70, // На земле (дублируем для увеличения вероятности)
+      groundLevel - obstacleHeight, // На земле - не уходит под землю
+      groundLevel - obstacleHeight, // На земле (дублируем для увеличения вероятности)
       canvasHeight - 140, // Средняя высота - можно пройти одним прыжком
       canvasHeight - 210, // Высоко - нужен двойной прыжок
     ];
@@ -106,13 +109,13 @@ export default function GameCanvas({
       x: canvasWidth + 100, // Спавним за пределами экрана
       y: yPosition,
       width: 50 + Math.random() * 20, // Увеличенный размер для лучшей видимости
-      height: 50 + Math.random() * 20,
+      height: obstacleHeight, // Используем предварительно рассчитанную высоту
       type,
       color: colors[type]
     };
 
     // Добавляем движение для воздушных препятствий (30% шанс)
-    if (yPosition < canvasHeight - 70 && Math.random() < 0.3) {
+    if (yPosition < groundLevel - obstacleHeight && Math.random() < 0.3) {
       obstacle.velocityY = 1 + Math.random() * 2; // Скорость движения 1-3 пикселя/кадр
       obstacle.oscillationCenter = yPosition;
       obstacle.oscillationRange = 50 + Math.random() * 30; // Радиус колебаний 50-80 пикселей
@@ -132,8 +135,11 @@ export default function GameCanvas({
     };
 
     // Бонусы на достижимых высотах (с учетом двойного прыжка)
+    // Учитываем размер бонусов чтобы они не уходили под землю
+    const bonusHeight = 40;
+    const groundLevel = canvasHeight - 50; // Уровень земли
     const heightVariants = [
-      canvasHeight - 80, // Низко (скорректировано под новую землю)
+      groundLevel - bonusHeight, // Низко - не уходит под землю
       canvasHeight - 160, // Средне
       canvasHeight - 220, // Высоко (двойной прыжок)
     ];
