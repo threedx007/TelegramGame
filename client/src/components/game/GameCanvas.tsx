@@ -517,17 +517,19 @@ export default function GameCanvas({
             `;
           }
           
-          // Бонусы
+          // Бонусы - лучше заполняют прямоугольную область 40x40
           if (SvgComponent === BacteriaSprite) {
             return `
               <g>
-                <circle cx="20" cy="20" r="15" fill="#32CD32" stroke="#228B22" stroke-width="2"/>
-                <circle cx="15" cy="15" r="3" fill="#90EE90"/>
-                <circle cx="25" cy="15" r="3" fill="#90EE90"/>
-                <circle cx="20" cy="25" r="4" fill="#90EE90"/>
-                <path d="M 5 20 Q 10 15 15 20" stroke="#228B22" stroke-width="2" fill="none"/>
-                <path d="M 25 20 Q 30 15 35 20" stroke="#228B22" stroke-width="2" fill="none"/>
-                <circle cx="20" cy="20" r="2" fill="#FFFFFF"/>
+                <circle cx="20" cy="20" r="18" fill="#32CD32" stroke="#228B22" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4" fill="#90EE90"/>
+                <circle cx="28" cy="12" r="4" fill="#90EE90"/>
+                <circle cx="20" cy="28" r="5" fill="#90EE90"/>
+                <path d="M 2 20 Q 8 12 14 20" stroke="#228B22" stroke-width="2" fill="none"/>
+                <path d="M 26 20 Q 32 12 38 20" stroke="#228B22" stroke-width="2" fill="none"/>
+                <circle cx="20" cy="20" r="3" fill="#FFFFFF"/>
+                <circle cx="6" cy="25" r="2" fill="#90EE90"/>
+                <circle cx="34" cy="25" r="2" fill="#90EE90"/>
               </g>
             `;
           }
@@ -535,11 +537,13 @@ export default function GameCanvas({
           if (SvgComponent === BubbleSprite) {
             return `
               <g>
-                <circle cx="20" cy="20" r="15" fill="#F0F8FF" stroke="#B0E0E6" stroke-width="2" opacity="0.8"/>
-                <circle cx="15" cy="15" r="3" fill="#FFFFFF" opacity="0.9"/>
-                <circle cx="12" cy="12" r="1.5" fill="#FFFFFF"/>
-                <circle cx="28" cy="18" r="2" fill="#FFFFFF" opacity="0.7"/>
-                <circle cx="25" cy="25" r="1" fill="#FFFFFF"/>
+                <circle cx="20" cy="20" r="18" fill="#F0F8FF" stroke="#B0E0E6" stroke-width="2" opacity="0.9"/>
+                <circle cx="12" cy="12" r="5" fill="#FFFFFF" opacity="0.8"/>
+                <circle cx="8" cy="8" r="2.5" fill="#FFFFFF"/>
+                <circle cx="32" cy="15" r="3" fill="#FFFFFF" opacity="0.7"/>
+                <circle cx="28" cy="30" r="2" fill="#FFFFFF"/>
+                <circle cx="15" cy="32" r="1.5" fill="#FFFFFF"/>
+                <circle cx="35" cy="28" r="1" fill="#FFFFFF"/>
               </g>
             `;
           }
@@ -547,13 +551,16 @@ export default function GameCanvas({
           if (SvgComponent === FilterSprite) {
             return `
               <g>
-                <rect x="5" y="10" width="30" height="20" fill="#4169E1" stroke="#191970" stroke-width="2" rx="3"/>
-                <rect x="8" y="13" width="24" height="14" fill="#6495ED"/>
-                <line x1="8" y1="16" x2="32" y2="16" stroke="#191970" stroke-width="1"/>
-                <line x1="8" y1="20" x2="32" y2="20" stroke="#191970" stroke-width="1"/>
-                <line x1="8" y1="24" x2="32" y2="24" stroke="#191970" stroke-width="1"/>
-                <circle cx="12" cy="18" r="1" fill="#FFFFFF"/>
-                <circle cx="28" cy="22" r="1" fill="#FFFFFF"/>
+                <rect x="2" y="5" width="36" height="30" fill="#4169E1" stroke="#191970" stroke-width="2" rx="4"/>
+                <rect x="5" y="8" width="30" height="24" fill="#6495ED"/>
+                <line x1="5" y1="12" x2="35" y2="12" stroke="#191970" stroke-width="1"/>
+                <line x1="5" y1="16" x2="35" y2="16" stroke="#191970" stroke-width="1"/>
+                <line x1="5" y1="20" x2="35" y2="20" stroke="#191970" stroke-width="1"/>
+                <line x1="5" y1="24" x2="35" y2="24" stroke="#191970" stroke-width="1"/>
+                <line x1="5" y1="28" x2="35" y2="28" stroke="#191970" stroke-width="1"/>
+                <circle cx="10" cy="14" r="1.5" fill="#FFFFFF"/>
+                <circle cx="30" cy="18" r="1.5" fill="#FFFFFF"/>
+                <circle cx="15" cy="26" r="1.5" fill="#FFFFFF"/>
               </g>
             `;
           }
@@ -561,12 +568,13 @@ export default function GameCanvas({
           if (SvgComponent === KeySprite) {
             return `
               <g>
-                <circle cx="12" cy="20" r="8" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
-                <circle cx="12" cy="20" r="4" fill="none" stroke="#DAA520" stroke-width="2"/>
-                <rect x="20" y="18" width="15" height="4" fill="#FFD700" stroke="#DAA520" stroke-width="1"/>
-                <rect x="30" y="16" width="3" height="2" fill="#FFD700"/>
-                <rect x="30" y="24" width="3" height="2" fill="#FFD700"/>
-                <rect x="27" y="20" width="3" height="2" fill="#FFD700"/>
+                <circle cx="12" cy="20" r="10" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+                <circle cx="12" cy="20" r="6" fill="none" stroke="#DAA520" stroke-width="2"/>
+                <rect x="22" y="17" width="16" height="6" fill="#FFD700" stroke="#DAA520" stroke-width="1"/>
+                <rect x="32" y="15" width="4" height="3" fill="#FFD700"/>
+                <rect x="32" y="25" width="4" height="3" fill="#FFD700"/>
+                <rect x="28" y="19" width="4" height="3" fill="#FFD700"/>
+                <circle cx="12" cy="20" r="3" fill="#DAA520"/>
               </g>
             `;
           }
@@ -693,12 +701,12 @@ export default function GameCanvas({
           svgToImage(FilterSprite, 40, 40),
           svgToImage(KeySprite, 40, 40),
           // Препятствия
-          svgToImage(FatSprite, 60, 60),
-          svgToImage(WasteSprite, 60, 60),
-          svgToImage(ChemicalSprite, 60, 60),
-          svgToImage(IceSprite, 60, 60),
-          svgToImage(LightningSprite, 60, 60),
-          svgToImage(RootsSprite, 60, 60)
+          svgToImage(FatSprite, 85, 85),
+          svgToImage(WasteSprite, 85, 85),
+          svgToImage(ChemicalSprite, 85, 85),
+          svgToImage(IceSprite, 85, 85),
+          svgToImage(LightningSprite, 85, 85),
+          svgToImage(RootsSprite, 85, 85)
         ]);
 
         setSvgImages({
