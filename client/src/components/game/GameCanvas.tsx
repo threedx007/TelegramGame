@@ -95,24 +95,24 @@ export default function GameCanvas({
 
     // Варианты высот: больше препятствий на земле для принуждения к прыжкам
     const heightVariants = [
-      canvasHeight - 150, // На земле - нужно прыгать (50% вероятность)
-      canvasHeight - 150, // На земле (дублируем для увеличения вероятности)
-      canvasHeight - 220, // Средняя высота - можно пройти одним прыжком
-      canvasHeight - 290, // Высоко - нужен двойной прыжок
+      canvasHeight - 70, // На земле - нужно прыгать (скорректировано под новую землю)
+      canvasHeight - 70, // На земле (дублируем для увеличения вероятности)
+      canvasHeight - 140, // Средняя высота - можно пройти одним прыжком
+      canvasHeight - 210, // Высоко - нужен двойной прыжок
     ];
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
     const obstacle: Obstacle = {
       x: canvasWidth + 100, // Спавним за пределами экрана
       y: yPosition,
-      width: 30 + Math.random() * 20,
-      height: 30 + Math.random() * 20,
+      width: 50 + Math.random() * 20, // Увеличенный размер для лучшей видимости
+      height: 50 + Math.random() * 20,
       type,
       color: colors[type]
     };
 
     // Добавляем движение для воздушных препятствий (30% шанс)
-    if (yPosition < canvasHeight - 150 && Math.random() < 0.3) {
+    if (yPosition < canvasHeight - 70 && Math.random() < 0.3) {
       obstacle.velocityY = 1 + Math.random() * 2; // Скорость движения 1-3 пикселя/кадр
       obstacle.oscillationCenter = yPosition;
       obstacle.oscillationRange = 50 + Math.random() * 30; // Радиус колебаний 50-80 пикселей
@@ -133,17 +133,17 @@ export default function GameCanvas({
 
     // Бонусы на достижимых высотах (с учетом двойного прыжка)
     const heightVariants = [
-      canvasHeight - 160, // Низко
-      canvasHeight - 240, // Средне
-      canvasHeight - 300, // Высоко (двойной прыжок)
+      canvasHeight - 80, // Низко (скорректировано под новую землю)
+      canvasHeight - 160, // Средне
+      canvasHeight - 220, // Высоко (двойной прыжок)
     ];
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
     return {
       x: canvasWidth + 150, // Спавним за пределами экрана, чуть дальше препятствий
       y: yPosition,
-      width: 25,
-      height: 25,
+      width: 40, // Увеличенный размер бонусов
+      height: 40,
       type,
       color: colors[type],
       value: type === 'key' ? 50 : type === 'bacteria' ? 10 : 5
@@ -432,9 +432,9 @@ export default function GameCanvas({
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw ground
+    // Draw ground - меньше места, ближе к низу
     ctx.fillStyle = '#2E8B57';
-    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+    ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
 
     // Draw game objects
     drawPlayer(ctx, player);
