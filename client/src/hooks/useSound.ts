@@ -40,17 +40,29 @@ export function useSound() {
 
   // Функция инициализации AudioContext (требует пользовательского взаимодействия на мобильных)
   const initializeAudioContext = useCallback(() => {
-    if (!audioContextRef.current && enabled) {
-      try {
+    if (!enabled) return false;
+    
+    try {
+      // Создаем AudioContext если его нет
+      if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-        
-        // На мобильных устройствах AudioContext может быть в suspended состоянии
-        if (audioContextRef.current.state === 'suspended') {
-          audioContextRef.current.resume();
-        }
-      } catch (error) {
-        console.warn('AudioContext не поддерживается:', error);
+        console.log('AudioContext создан, состояние:', audioContextRef.current.state);
       }
+      
+      // Пытаемся возобновить AudioContext если он заблокирован
+      if (audioContextRef.current.state === 'suspended') {
+        console.log('Попытка возобновить AudioContext...');
+        audioContextRef.current.resume().then(() => {
+          console.log('AudioContext возобновлен, состояние:', audioContextRef.current?.state);
+        }).catch((error) => {
+          console.error('Ошибка возобновления AudioContext:', error);
+        });
+      }
+      
+      return audioContextRef.current.state === 'running';
+    } catch (error) {
+      console.error('Ошибка инициализации AudioContext:', error);
+      return false;
     }
   }, [enabled]);
 
@@ -74,17 +86,12 @@ export function useSound() {
   const playTone = useCallback((frequency: number, duration: number, type: OscillatorType = 'sine', fadeOut: boolean = true) => {
     if (!enabled) return;
     
-    // Инициализируем аудио контекст при первом использовании
-    if (!audioContextRef.current) {
-      initializeAudioContext();
+    // Пытаемся инициализировать AudioContext при каждом звуке
+    const initialized = initializeAudioContext();
+    if (!audioContextRef.current || audioContextRef.current.state !== 'running') {
+      console.log('AudioContext недоступен для воспроизведения звука');
+      return;
     }
-    
-    // Проверяем состояние контекста и возобновляем при необходимости
-    if (audioContextRef.current?.state === 'suspended') {
-      audioContextRef.current.resume();
-    }
-    
-    if (!audioContextRef.current) return;
 
     try {
       const ctx = audioContextRef.current;

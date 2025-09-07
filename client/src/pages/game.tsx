@@ -42,11 +42,53 @@ export default function Game() {
   const jumpRequestRef = useRef(false);
 
   const handleJump = () => {
-    // Инициализируем аудио при первом взаимодействии для мобильных устройств
-    sounds.initializeAudio();
+    // Агрессивно инициализируем аудио при каждом взаимодействии
+    try {
+      sounds.initializeAudio();
+      console.log('Инициализация аудио при взаимодействии');
+    } catch (error) {
+      console.error('Ошибка инициализации аудио:', error);
+    }
     
     if (gameState.state !== 'playing') return;
     jumpRequestRef.current = true; // Сигнализируем о запросе на прыжок
+  };
+
+  const handleStartGame = () => {
+    try {
+      sounds.initializeAudio();
+      console.log('Инициализация аудио при старте игры');
+    } catch (error) {
+      console.error('Ошибка инициализации аудио при старте:', error);
+    }
+    resetGame();
+  };
+
+  const handlePauseGame = () => {
+    try {
+      sounds.initializeAudio();
+    } catch (error) {
+      console.error('Ошибка инициализации аудио при паузе:', error);
+    }
+    pauseGame();
+  };
+
+  const handleResumeGame = () => {
+    try {
+      sounds.initializeAudio();
+    } catch (error) {
+      console.error('Ошибка инициализации аудио при возобновлении:', error);
+    }
+    resumeGame();
+  };
+
+  const handleShareScore = () => {
+    try {
+      sounds.initializeAudio();
+    } catch (error) {
+      console.error('Ошибка инициализации аудио при расшаривании:', error);
+    }
+    shareScore();
   };
 
   const handleCloseEducation = () => {
@@ -93,18 +135,25 @@ export default function Game() {
         showCombo={showCombo}
         soundEnabled={soundEnabled}
         volume={volume}
-        onPause={pauseGame}
-        onToggleSound={() => setSoundEnabled(!soundEnabled)}
+        onPause={handlePauseGame}
+        onToggleSound={() => {
+          try {
+            sounds.initializeAudio();
+          } catch (error) {
+            console.error('Ошибка инициализации аудио при переключении звука:', error);
+          }
+          setSoundEnabled(!soundEnabled);
+        }}
         onVolumeChange={setVolume}
       />
       
       <GameModals
         gameState={gameState}
         educationalMessage={educationalMessage}
-        onStartGame={resetGame}
-        onRestartGame={resetGame}
-        onResumeGame={resumeGame}
-        onShareScore={shareScore}
+        onStartGame={handleStartGame}
+        onRestartGame={handleStartGame}
+        onResumeGame={handleResumeGame}
+        onShareScore={handleShareScore}
         onCloseEducation={handleCloseEducation}
       />
     </div>
