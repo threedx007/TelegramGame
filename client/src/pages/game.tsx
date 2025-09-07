@@ -76,7 +76,11 @@ export default function Game() {
       <GameUI
         gameState={gameState}
         showCombo={showCombo}
+        soundEnabled={soundEnabled}
+        volume={volume}
         onPause={pauseGame}
+        onToggleSound={() => setSoundEnabled(!soundEnabled)}
+        onVolumeChange={setVolume}
       />
       
       <GameModals
