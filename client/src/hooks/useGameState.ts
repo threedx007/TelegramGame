@@ -46,8 +46,12 @@ export function useGameState() {
   const [showCombo, setShowCombo] = useState(false);
   const [lastBonusTime, setLastBonusTime] = useState<number>(0);
   const [comboShowTime, setComboShowTime] = useState<number>(0);
+  const [gameStartTime, setGameStartTime] = useState<number>(0);
 
   const resetGame = useCallback(() => {
+    const now = Date.now();
+    setGameStartTime(now);
+    
     setGameState(prev => ({
       ...prev,
       state: 'playing',
@@ -275,6 +279,7 @@ export function useGameState() {
     particles,
     educationalMessage,
     showCombo,
+    gameStartTime,
     setGameState,
     setPlayer,
     setObstacles,

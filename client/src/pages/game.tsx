@@ -15,6 +15,7 @@ export default function Game() {
     particles,
     educationalMessage,
     showCombo,
+    gameStartTime,
     setGameState,
     setPlayer,
     setObstacles,
@@ -67,6 +68,7 @@ export default function Game() {
         pits={pits}
         platforms={platforms}
         particles={particles}
+        gameStartTime={gameStartTime}
         jumpRequestRef={jumpRequestRef}
         onPlayerUpdate={setPlayer}
         onObstaclesUpdate={setObstacles}

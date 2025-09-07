@@ -25,6 +25,7 @@ interface GameCanvasProps {
   pits: Pit[];
   platforms: Platform[];
   particles: Particle[];
+  gameStartTime: number;
   jumpRequestRef: React.MutableRefObject<boolean>;
   onPlayerUpdate: (player: Player) => void;
   onObstaclesUpdate: (obstacles: Obstacle[]) => void;
@@ -49,6 +50,7 @@ export default function GameCanvas({
   pits,
   platforms,
   particles,
+  gameStartTime,
   jumpRequestRef,
   onPlayerUpdate,
   onObstaclesUpdate,
@@ -140,7 +142,7 @@ export default function GameCanvas({
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
     const obstacle: Obstacle = {
-      x: canvasWidth + 100, // Спавним за пределами экрана
+      x: canvasWidth + Math.max(200, canvasWidth * 0.5), // Больше расстояние для мобильных
       y: yPosition,
       width: 65 + Math.random() * 20, // Увеличенный размер препятствий для лучшего различения
       height: obstacleHeight, // Используем предварительно рассчитанную высоту
@@ -180,7 +182,7 @@ export default function GameCanvas({
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
     return {
-      x: canvasWidth + 150, // Спавним за пределами экрана, чуть дальше препятствий
+      x: canvasWidth + Math.max(250, canvasWidth * 0.6), // Больше расстояние для мобильных
       y: yPosition,
       width: 40, // Увеличенный размер бонусов
       height: 40,
@@ -196,7 +198,7 @@ export default function GameCanvas({
     const pitDepth = 30 + Math.random() * 20; // Глубина ямы 30-50px
 
     const pit: Pit = {
-      x: canvasWidth + 100,
+      x: canvasWidth + Math.max(200, canvasWidth * 0.5),
       y: groundLevel, // Ямы всегда на уровне земли
       width: pitWidth,
       height: 50, // Высота равна высоте земли для визуализации
@@ -229,7 +231,7 @@ export default function GameCanvas({
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
     const platform: Platform = {
-      x: canvasWidth + 120,
+      x: canvasWidth + Math.max(220, canvasWidth * 0.55),
       y: yPosition,
       width: platformWidth,
       height: 15, // Толщина платформы
@@ -559,10 +561,15 @@ export default function GameCanvas({
       });
     };
 
+    // Добавляем задержку спавна после перезапуска игры (особенно важно для мобильных устройств)
+    const timeSinceRestart = Date.now() - gameStartTime;
+    const spawnDelay = 1500; // 1.5 секунды задержки после перезапуска
+    const shouldSpawn = timeSinceRestart > spawnDelay;
+    
     // Спавн препятствий (прогрессивное увеличение сложности)
     const obstacleSpawnRate = Math.min(0.025 + gameState.level * 0.002, 0.045); // Частота растет с уровнем
     const maxObstacles = Math.min(6 + Math.floor(gameState.level / 3), 10); // Максимум препятствий растет с уровнем
-    if (Math.random() < obstacleSpawnRate && currentObstacles.length < maxObstacles) {
+    if (shouldSpawn && Math.random() < obstacleSpawnRate && currentObstacles.length < maxObstacles) {
       const newObstacle = spawnObstacle(canvas.width, canvas.height);
       if (!checkObjectOverlap(newObstacle, [...currentObstacles, ...currentBonuses])) {
         currentObstacles.push(newObstacle);
@@ -571,16 +578,16 @@ export default function GameCanvas({
     
     // Спавн бонусов (с учетом сложности - чем выше уровень, тем меньше бонусов)
     const bonusSpawnRate = Math.max(0.015 - gameState.level * 0.001, 0.008);
-    if (Math.random() < bonusSpawnRate && currentBonuses.length < 2) {
+    if (shouldSpawn && Math.random() < bonusSpawnRate && currentBonuses.length < 2) {
       const newBonus = spawnBonus(canvas.width, canvas.height);
       if (!checkObjectOverlap(newBonus, [...currentObstacles, ...currentBonuses])) {
         currentBonuses.push(newBonus);
       }
     }
     
-    // Гарантируем минимальное количество объектов на экране
+    // Гарантируем минимальное количество объектов на экране (но только после задержки)
     const totalObjects = currentObstacles.length + currentBonuses.length;
-    if (totalObjects < 2) {
+    if (shouldSpawn && totalObjects < 2) {
       // Принудительно спавним объект если экран пустой
       if (Math.random() < 0.7) {
         // 70% шанс спавна препятствия
@@ -599,7 +606,7 @@ export default function GameCanvas({
     
     // Спавн ям (реже чем препятствия, только на земле)
     const pitSpawnRate = 0.008; // Низкий шанс спавна ям
-    if (Math.random() < pitSpawnRate && currentPits.length < 2) {
+    if (shouldSpawn && Math.random() < pitSpawnRate && currentPits.length < 2) {
       const newPit = spawnPit(canvas.width, canvas.height);
       // Ямы не должны пересекаться с другими объектами
       const allObjects = [...currentObstacles, ...currentBonuses, ...currentPits, ...currentPlatforms];
@@ -610,7 +617,7 @@ export default function GameCanvas({
     
     // Спавн платформ (средняя частота спавна)
     const platformSpawnRate = 0.012; // Умеренный шанс спавна платформ
-    if (Math.random() < platformSpawnRate && currentPlatforms.length < 3) {
+    if (shouldSpawn && Math.random() < platformSpawnRate && currentPlatforms.length < 3) {
       const newPlatform = spawnPlatform(canvas.width, canvas.height);
       const allObjects = [...currentObstacles, ...currentBonuses, ...currentPits, ...currentPlatforms];
       if (!checkObjectOverlap(newPlatform, allObjects)) {
