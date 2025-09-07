@@ -220,7 +220,7 @@ export default function GameCanvas({
     };
 
     const platformWidth = 100 + Math.random() * 60; // Ширина платформы 100-160px
-    const groundLevel = canvasHeight - 50;
+    const groundLevel = canvasHeight - 120; // Уровень земли (увеличен для мобильных)
     
     // Платформы на разных высотах для добавления вертикальности
     const heightVariants = [
