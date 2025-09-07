@@ -24,10 +24,10 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
         setShowTooltip(true);
       }, delay);
 
-      // Пропадает через 5 секунд
+      // Пропадает через 3 секунды
       const hideTimer = setTimeout(() => {
         setShowTooltip(false);
-      }, delay + 5000);
+      }, delay + 3000);
 
       return () => {
         clearTimeout(timer);
