@@ -45,7 +45,7 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
         <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 text-center shadow-lg animate-bounce">
             <div className="text-sm text-gray-700 mb-2">🎮 Управление</div>
-            <div className="text-xs text-gray-600">Тап - прыжок | Свайп - движение</div>
+            <div className="text-xs text-gray-600">Тап - прыжок</div>
           </div>
         </div>
       )}
