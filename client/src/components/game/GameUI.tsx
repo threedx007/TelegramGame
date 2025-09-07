@@ -81,7 +81,7 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
 
       {/* Control Buttons */}
       {gameState.state === 'playing' && (
-        <div className="absolute top-32 right-4 flex flex-col gap-2">
+        <div className="absolute top-44 right-4 flex flex-col gap-2">
           {/* Sound Toggle Button */}
           <button 
             data-testid="button-sound-toggle"
