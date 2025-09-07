@@ -447,11 +447,14 @@ export default function GameCanvas({
       jumpRequestRef.current = false; // Сбрасываем запрос
     }
 
+    // Calculate frame-rate independent movement multiplier (normalized to 60 FPS)
+    const deltaMultiplier = deltaTime / 16.67;
+    
     // Update player physics
     if (!updatedPlayer.grounded) {
-      updatedPlayer.velocityY += 0.8; // gravity
+      updatedPlayer.velocityY += 0.8 * deltaMultiplier; // gravity
     }
-    updatedPlayer.y += updatedPlayer.velocityY;
+    updatedPlayer.y += updatedPlayer.velocityY * deltaMultiplier;
 
     // Сначала проверяем коллизии с ямами ДО обработки земли
     let inPit = false;
@@ -617,11 +620,11 @@ export default function GameCanvas({
 
     // Update obstacles
     const updatedObstacles = currentObstacles.filter(obstacle => {
-      obstacle.x -= gameState.gameSpeed;
+      obstacle.x -= gameState.gameSpeed * deltaMultiplier;
       
       // Обновляем движение по вертикали для движущихся препятствий
       if (obstacle.velocityY !== undefined && obstacle.oscillationCenter !== undefined && obstacle.oscillationRange !== undefined) {
-        obstacle.y += obstacle.velocityY;
+        obstacle.y += obstacle.velocityY * deltaMultiplier;
         
         // Отскок от границ колебаний
         if (obstacle.y <= obstacle.oscillationCenter - obstacle.oscillationRange || 
@@ -641,7 +644,7 @@ export default function GameCanvas({
     
     // Update bonuses
     const updatedBonuses = currentBonuses.filter(bonus => {
-      bonus.x -= gameState.gameSpeed;
+      bonus.x -= gameState.gameSpeed * deltaMultiplier;
       if (bonus.x + bonus.width < 0) return false;
       
       if (checkCollision(updatedPlayer, bonus)) {
@@ -653,7 +656,7 @@ export default function GameCanvas({
     
     // Update pits 
     const updatedPits = currentPits.filter(pit => {
-      pit.x -= gameState.gameSpeed;
+      pit.x -= gameState.gameSpeed * deltaMultiplier;
       if (pit.x + pit.width < 0) return false;
       // Коллизии с ямами теперь обрабатываются в основной логике физики
       return true;
@@ -661,7 +664,7 @@ export default function GameCanvas({
     
     // Update platforms
     const updatedPlatforms = currentPlatforms.filter(platform => {
-      platform.x -= gameState.gameSpeed;
+      platform.x -= gameState.gameSpeed * deltaMultiplier;
       if (platform.x + platform.width < 0) return false;
       return true;
     });
@@ -674,8 +677,8 @@ export default function GameCanvas({
 
     // Update particles
     const updatedParticles = particles.filter(particle => {
-      particle.x += particle.vx;
-      particle.y += particle.vy;
+      particle.x += particle.vx * deltaMultiplier;
+      particle.y += particle.vy * deltaMultiplier;
       particle.life--;
       return particle.life > 0;
     });
