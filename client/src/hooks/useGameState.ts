@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { GameState, Player, Obstacle, Bonus, Particle, EducationalMessage } from '@/types/game';
+import { useSound } from './useSound';
 
 const EDUCATIONAL_MESSAGES: Record<string, EducationalMessage> = {
   fat: { emoji: '🧈', title: 'Жировая пробка!', text: 'Не сливайте жир в септик! Это основная причина засоров.' },
@@ -11,6 +12,8 @@ const EDUCATIONAL_MESSAGES: Record<string, EducationalMessage> = {
 };
 
 export function useGameState() {
+  const { sounds, enabled: soundEnabled, setEnabled: setSoundEnabled, volume, setVolume } = useSound();
+  
   const [gameState, setGameState] = useState<GameState>({
     state: 'start',
     score: 0,
@@ -115,17 +118,31 @@ export function useGameState() {
       const newCombo = prev.combo + 1;
       const multiplier = Math.min(newCombo, 4);
       const points = bonus.value * multiplier;
+      const newScore = prev.score + points;
+      const newLevel = Math.floor(newScore / 500) + 1;
+      const leveledUp = newLevel > prev.level;
       
       console.log('Bonus collected! Points:', points, 'Combo:', newCombo);
+      
+      // Play appropriate sound effects
+      sounds.collectBonus();
       
       if (newCombo > 1) {
         setShowCombo(true);
         setComboShowTime(now);
+        if (newCombo >= 5) {
+          sounds.comboComplete();
+        }
+      }
+      
+      if (leveledUp) {
+        sounds.levelUp();
       }
 
       return {
         ...prev,
-        score: prev.score + points,
+        score: newScore,
+        level: newLevel,
         combo: newCombo
       };
     });
@@ -145,14 +162,16 @@ export function useGameState() {
       });
     }
     setParticles(prev => [...prev, ...newParticles]);
-  }, [gameState.state]);
+  }, [gameState.state, sounds]);
 
   const hitObstacle = useCallback((obstacle: Obstacle) => {
     const message = EDUCATIONAL_MESSAGES[obstacle.type];
     setEducationalMessage(message);
+    // Play hit sound
+    sounds.hitObstacle();
     // Игра сразу завершается при столкновении
     gameOver();
-  }, [gameOver]);
+  }, [sounds, gameOver]);
 
   const shareScore = useCallback(() => {
     const shareText = `🏆 Я набрал ${gameState.score} очков в игре "Септик-Серфер"! 💧
@@ -248,6 +267,12 @@ export function useGameState() {
     collectBonus,
     hitObstacle,
     shareScore,
-    updateGameLogic
+    updateGameLogic,
+    // Sound controls
+    sounds,
+    soundEnabled,
+    setSoundEnabled,
+    volume,
+    setVolume
   };
 }

@@ -25,7 +25,12 @@ export default function Game() {
     collectBonus,
     hitObstacle,
     shareScore,
-    updateGameLogic
+    updateGameLogic,
+    sounds,
+    soundEnabled,
+    setSoundEnabled,
+    volume,
+    setVolume
   } = useGameState();
 
   const jumpRequestRef = useRef(false);
@@ -65,6 +70,7 @@ export default function Game() {
         onObstacleHit={hitObstacle}
         onJump={handleJump}
         onUpdateGameLogic={updateGameLogic}
+        sounds={sounds}
       />
       
       <GameUI

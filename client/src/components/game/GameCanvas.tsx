@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { Player, Obstacle, Bonus, Particle, GameState } from '@/types/game';
+import { GameSounds } from '@/hooks/useSound';
 
 // Импорты SVG спрайтов с идеальной прозрачностью
 import {
@@ -32,6 +33,7 @@ interface GameCanvasProps {
   onObstacleHit: (obstacle: Obstacle) => void;
   onJump: () => void;
   onUpdateGameLogic: () => void;
+  sounds: GameSounds;
 }
 
 export default function GameCanvas({
@@ -49,7 +51,8 @@ export default function GameCanvas({
   onBonusCollect,
   onObstacleHit,
   onJump,
-  onUpdateGameLogic
+  onUpdateGameLogic,
+  sounds
 }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number>();
@@ -306,11 +309,13 @@ export default function GameCanvas({
         updatedPlayer.velocityY = -18; // Увеличили силу прыжка для больших спрайтов
         updatedPlayer.grounded = false;
         updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок
+        sounds.jump();
       }
       // Двойной прыжок в воздухе
       else if (updatedPlayer.doubleJumpAvailable) {
         updatedPlayer.velocityY = -15; // Увеличили силу двойного прыжка
         updatedPlayer.doubleJumpAvailable = false; // Тратим двойной прыжок
+        sounds.doubleJump();
       }
       jumpRequestRef.current = false; // Сбрасываем запрос
     }
