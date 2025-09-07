@@ -28,7 +28,8 @@ export function useGameState() {
     height: 40,
     velocityY: 0,
     grounded: true,
-    color: '#00A8FF'
+    color: '#00A8FF',
+    doubleJumpAvailable: true // Доступен двойной прыжок при старте
   });
 
   const [obstacles, setObstacles] = useState<Obstacle[]>([]);
@@ -57,7 +58,8 @@ export function useGameState() {
       height: 40,
       velocityY: 0,
       grounded: true,
-      color: '#00A8FF'
+      color: '#00A8FF',
+      doubleJumpAvailable: true // Сброс двойного прыжка при перезапуске
     });
 
     setObstacles([]);

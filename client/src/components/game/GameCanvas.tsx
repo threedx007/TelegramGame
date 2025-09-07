@@ -57,11 +57,11 @@ export default function GameCanvas({
       roots: '#228B22'
     };
 
-    // Варианты высот: низкие (на земле), средние, высокие
+    // Варианты высот: достижимые с двойным прыжком (макс высота прыжка ~180px)
     const heightVariants = [
       canvasHeight - 150, // На земле - нужно прыгать
-      canvasHeight - 250, // Средняя высота - можно пройти пригнувшись
-      canvasHeight - 350, // Высоко - можно пройти стоя
+      canvasHeight - 220, // Средняя высота - можно пройти одним прыжком
+      canvasHeight - 290, // Высоко - нужен двойной прыжок
     ];
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
@@ -85,11 +85,11 @@ export default function GameCanvas({
       key: '#FFD700'
     };
 
-    // Бонусы появляются на разных высотах для разнообразия
+    // Бонусы на достижимых высотах (с учетом двойного прыжка)
     const heightVariants = [
-      canvasHeight - 180, // Низко
-      canvasHeight - 280, // Средне
-      canvasHeight - 380, // Высоко
+      canvasHeight - 160, // Низко
+      canvasHeight - 240, // Средне
+      canvasHeight - 300, // Высоко (двойной прыжок)
     ];
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
@@ -202,6 +202,7 @@ export default function GameCanvas({
       updatedPlayer.y = groundY;
       updatedPlayer.velocityY = 0;
       updatedPlayer.grounded = true;
+      updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок при приземлении
     }
 
     onPlayerUpdate(updatedPlayer);
@@ -228,18 +229,18 @@ export default function GameCanvas({
       });
     };
 
-    // Спавн препятствий (реже на высоких уровнях для балансирования)
-    const obstacleSpawnRate = Math.max(0.008 - gameState.level * 0.001, 0.003);
-    if (Math.random() < obstacleSpawnRate && currentObstacles.length < 3) {
+    // Спавн препятствий (больше препятствий для сложности)
+    const obstacleSpawnRate = Math.max(0.015 - gameState.level * 0.001, 0.008);
+    if (Math.random() < obstacleSpawnRate && currentObstacles.length < 5) {
       const newObstacle = spawnObstacle(canvas.width, canvas.height);
       if (!checkObjectOverlap(newObstacle, [...currentObstacles, ...currentBonuses])) {
         currentObstacles.push(newObstacle);
       }
     }
     
-    // Спавн бонусов (чаще чем препятствий)
-    const bonusSpawnRate = 0.012;
-    if (Math.random() < bonusSpawnRate && currentBonuses.length < 2) {
+    // Спавн бонусов (реже чем препятствий)
+    const bonusSpawnRate = 0.006;
+    if (Math.random() < bonusSpawnRate && currentBonuses.length < 1) {
       const newBonus = spawnBonus(canvas.width, canvas.height);
       if (!checkObjectOverlap(newBonus, [...currentObstacles, ...currentBonuses])) {
         currentBonuses.push(newBonus);

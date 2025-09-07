@@ -6,6 +6,7 @@ export interface Player {
   velocityY: number;
   grounded: boolean;
   color: string;
+  doubleJumpAvailable: boolean; // Можно ли использовать двойной прыжок
 }
 
 export interface GameObject {

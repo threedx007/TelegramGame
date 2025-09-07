@@ -29,11 +29,23 @@ export default function Game() {
   } = useGameState();
 
   const handleJump = () => {
-    if (gameState.state === 'playing' && player.grounded) {
+    if (gameState.state !== 'playing') return;
+    
+    // Обычный прыжок с земли
+    if (player.grounded) {
       setPlayer(prev => ({
         ...prev,
         velocityY: -15,
-        grounded: false
+        grounded: false,
+        doubleJumpAvailable: true // Восстанавливаем двойной прыжок
+      }));
+    }
+    // Двойной прыжок в воздухе
+    else if (player.doubleJumpAvailable) {
+      setPlayer(prev => ({
+        ...prev,
+        velocityY: -12, // Чуть слабее чем обычный прыжок
+        doubleJumpAvailable: false // Тратим двойной прыжок
       }));
     }
   };
