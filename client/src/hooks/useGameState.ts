@@ -155,17 +155,56 @@ export function useGameState() {
   }, [gameOver]);
 
   const shareScore = useCallback(() => {
+    const shareText = `🏆 Я набрал ${gameState.score} очков в игре "Септик-Серфер"! 💧
+
+🎮 Игра о правильном уходе за септиком
+📏 Дистанция: ${Math.floor(gameState.distance)} метров
+
+Попробуй побить мой рекорд! 🚀`;
+    
     if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.showPopup({
-        title: 'Поделиться',
-        message: `Я набрал ${gameState.score} очков в игре Септик-Серфер! Попробуй побить мой рекорд!`,
-        buttons: [
-          { id: 'share', type: 'default', text: 'Поделиться' },
-          { type: 'cancel' }
-        ]
-      });
+      // Используем простой подход для Telegram Web App
+      try {
+        window.Telegram.WebApp.sendData(JSON.stringify({
+          action: 'share_score',
+          score: gameState.score,
+          distance: Math.floor(gameState.distance),
+          text: shareText
+        }));
+      } catch (error) {
+        // Fallback к копированию в буфер обмена
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(shareText);
+        }
+      }
+    } else {
+      // Fallback для браузера (не в Telegram)
+      if (navigator.share) {
+        navigator.share({
+          title: 'Септик-Серфер - Мой результат',
+          text: shareText,
+          url: window.location.href
+        }).catch(() => {
+          // Если не удалось поделиться, копируем в буфер обмена
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(shareText).then(() => {
+              alert('✅ Результат скопирован в буфер обмена!');
+            });
+          }
+        });
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText).then(() => {
+          alert('✅ Результат скопирован в буфер обмена!');
+        }).catch(() => {
+          // Показываем текст для ручного копирования
+          prompt('📋 Скопируйте результат:', shareText);
+        });
+      } else {
+        // Показываем текст для ручного копирования
+        prompt('📋 Скопируйте результат:', shareText);
+      }
     }
-  }, [gameState.score]);
+  }, [gameState.score, gameState.distance]);
 
   // Функция обновления игрового состояния (сброс комбо по времени)
   const updateGameLogic = useCallback(() => {
