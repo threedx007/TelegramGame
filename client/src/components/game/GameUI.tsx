@@ -1,4 +1,5 @@
 import { GameState } from '@/types/game';
+import { useEffect, useState } from 'react';
 
 interface GameUIProps {
   gameState: GameState;
@@ -11,6 +12,24 @@ interface GameUIProps {
 }
 
 export default function GameUI({ gameState, showCombo, soundEnabled, volume, onPause, onToggleSound, onVolumeChange }: GameUIProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  useEffect(() => {
+    if (gameState.state === 'playing' && gameState.distance < 100) {
+      // Для Telegram WebApp добавляем небольшую задержку, чтобы интерфейс успел прогрузиться
+      const isInTelegram = !!(window as any).Telegram?.WebApp;
+      const delay = isInTelegram ? 1000 : 100;
+      
+      const timer = setTimeout(() => {
+        setShowTooltip(true);
+      }, delay);
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowTooltip(false);
+    }
+  }, [gameState.state, gameState.distance]);
+
   return (
     <div className="absolute inset-0 pointer-events-none z-10">
       {/* HUD */}
@@ -41,7 +60,7 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
       )}
 
       {/* Control Instructions */}
-      {gameState.state === 'playing' && gameState.distance < 100 && (
+      {showTooltip && (
         <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
           <div className="bg-white border-2 border-blue-300 rounded-xl p-4 text-center shadow-xl animate-bounce">
             <div className="text-sm font-bold text-blue-800 mb-2">🎮 Управление</div>
