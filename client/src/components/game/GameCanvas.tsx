@@ -57,9 +57,17 @@ export default function GameCanvas({
       roots: '#228B22'
     };
 
+    // Варианты высот: низкие (на земле), средние, высокие
+    const heightVariants = [
+      canvasHeight - 150, // На земле - нужно прыгать
+      canvasHeight - 250, // Средняя высота - можно пройти пригнувшись
+      canvasHeight - 350, // Высоко - можно пройти стоя
+    ];
+    const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
+
     return {
-      x: canvasWidth,
-      y: canvasHeight - 150 - Math.random() * 100,
+      x: canvasWidth + 100, // Спавним за пределами экрана
+      y: yPosition,
       width: 30 + Math.random() * 20,
       height: 30 + Math.random() * 20,
       type,
@@ -77,9 +85,17 @@ export default function GameCanvas({
       key: '#FFD700'
     };
 
+    // Бонусы появляются на разных высотах для разнообразия
+    const heightVariants = [
+      canvasHeight - 180, // Низко
+      canvasHeight - 280, // Средне
+      canvasHeight - 380, // Высоко
+    ];
+    const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
+
     return {
-      x: canvasWidth,
-      y: canvasHeight - 200 - Math.random() * 150,
+      x: canvasWidth + 150, // Спавним за пределами экрана, чуть дальше препятствий
+      y: yPosition,
       width: 25,
       height: 25,
       type,
@@ -206,32 +222,32 @@ export default function GameCanvas({
       gameSpeed: newSpeed
     });
 
-    // Принудительно создаем объекты для тестирования  
-    if (currentObstacles.length === 0 && gameState.distance > 50) {
-      const testObstacle = {
-        x: 600,
-        y: canvas.height - 250,
-        width: 80,
-        height: 80,
-        type: 'fat' as const,
-        color: '#FF0000' // Ярко-красный для видимости
-      };
-      console.log('Force creating LARGE RED test obstacle:', testObstacle);
-      currentObstacles.push(testObstacle);
+    // Функция проверки пересечений объектов
+    const checkObjectOverlap = (newObj: any, existingObjs: any[]) => {
+      return existingObjs.some(obj => {
+        const distance = Math.abs(newObj.x - obj.x);
+        return distance < 150; // Минимальное расстояние между объектами
+      });
+    };
+
+    // Спавн препятствий (реже на высоких уровнях для балансирования)
+    const obstacleSpawnRate = Math.max(0.008 - gameState.level * 0.001, 0.003);
+    if (Math.random() < obstacleSpawnRate && currentObstacles.length < 3) {
+      const newObstacle = spawnObstacle(canvas.width, canvas.height);
+      if (!checkObjectOverlap(newObstacle, [...currentObstacles, ...currentBonuses])) {
+        currentObstacles.push(newObstacle);
+        console.log('Spawned obstacle:', newObstacle);
+      }
     }
     
-    if (currentBonuses.length === 0 && gameState.distance > 100) {
-      const testBonus = {
-        x: 500,
-        y: canvas.height - 220,
-        width: 60,
-        height: 60,
-        type: 'bacteria' as const,
-        color: '#00FF00', // Ярко-зеленый для видимости
-        value: 10
-      };
-      console.log('Force creating LARGE GREEN test bonus:', testBonus);
-      currentBonuses.push(testBonus);
+    // Спавн бонусов (чаще чем препятствий)
+    const bonusSpawnRate = 0.012;
+    if (Math.random() < bonusSpawnRate && currentBonuses.length < 2) {
+      const newBonus = spawnBonus(canvas.width, canvas.height);
+      if (!checkObjectOverlap(newBonus, [...currentObstacles, ...currentBonuses])) {
+        currentBonuses.push(newBonus);
+        console.log('Spawned bonus:', newBonus);
+      }
     }
 
     // Update obstacles
