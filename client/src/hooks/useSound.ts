@@ -13,6 +13,9 @@ export interface GameSounds {
   hitObstacle: () => void;
   comboComplete: () => void;
   levelUp: () => void;
+  startBackgroundMusic: () => void;
+  stopBackgroundMusic: () => void;
+  playGameOverMusic: () => void;
 }
 
 export function useSound() {
@@ -27,6 +30,11 @@ export function useSound() {
   });
 
   const audioContextRef = useRef<AudioContext | null>(null);
+  const backgroundMusicRef = useRef<{
+    oscillator?: OscillatorNode;
+    gainNode?: GainNode;
+    isPlaying: boolean;
+  }>({ isPlaying: false });
 
   // Инициализация AudioContext
   useEffect(() => {
@@ -128,11 +136,10 @@ export function useSound() {
       setTimeout(() => playTone(600, 0.1, 'sine'), 50);
     }, [playTone]),
 
-    // Звук двойного прыжка - более мощный с эффектом
+    // Звук двойного прыжка - похож на обычный прыжок, но чуть выше
     doubleJump: useCallback(() => {
-      playTone(300, 0.08, 'sawtooth');
-      setTimeout(() => playTone(500, 0.08, 'sawtooth'), 40);
-      setTimeout(() => playTone(700, 0.12, 'sine'), 80);
+      playTone(500, 0.1, 'sine');
+      setTimeout(() => playTone(750, 0.1, 'sine'), 50);
     }, [playTone]),
 
     // Звук сбора бонуса - приятная мелодия
@@ -163,7 +170,76 @@ export function useSound() {
       notes.forEach((freq, index) => {
         setTimeout(() => playTone(freq, 0.25, 'triangle'), index * 100);
       });
-    }, [playTone])
+    }, [playTone]),
+
+    // Начать фоновую музыку
+    startBackgroundMusic: useCallback(() => {
+      if (!enabled || !audioContextRef.current || backgroundMusicRef.current.isPlaying) return;
+
+      try {
+        const ctx = audioContextRef.current;
+        
+        // Создаем осциллятор для базовой мелодии
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+        
+        // Низкая громкость для фона
+        gainNode.gain.setValueAtTime(volume * 0.1, ctx.currentTime);
+        
+        // Простая повторяющаяся мелодия
+        const melody = [262, 294, 330, 294]; // C4, D4, E4, D4
+        let noteIndex = 0;
+        
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(melody[0], ctx.currentTime);
+        
+        // Меняем ноты каждые 2 секунды
+        const changeNote = () => {
+          if (backgroundMusicRef.current.isPlaying && audioContextRef.current) {
+            noteIndex = (noteIndex + 1) % melody.length;
+            oscillator.frequency.setTargetAtTime(melody[noteIndex], ctx.currentTime, 0.1);
+            setTimeout(changeNote, 2000);
+          }
+        };
+        
+        oscillator.start();
+        setTimeout(changeNote, 2000);
+        
+        backgroundMusicRef.current = {
+          oscillator,
+          gainNode,
+          isPlaying: true
+        };
+      } catch (error) {
+        console.warn('Ошибка запуска фоновой музыки:', error);
+      }
+    }, [enabled, volume]),
+
+    // Остановить фоновую музыку
+    stopBackgroundMusic: useCallback(() => {
+      if (backgroundMusicRef.current.isPlaying && backgroundMusicRef.current.oscillator) {
+        try {
+          backgroundMusicRef.current.oscillator.stop();
+        } catch (error) {
+          console.warn('Ошибка остановки фоновой музыки:', error);
+        }
+        backgroundMusicRef.current = { isPlaying: false };
+      }
+    }, []),
+
+    // Завершающая мелодия
+    playGameOverMusic: useCallback(() => {
+      if (!enabled) return;
+
+      // Грустная нисходящая мелодия
+      const notes = [523, 466, 415, 370, 330]; // C5, Bb4, Ab4, F#4, E4
+      notes.forEach((freq, index) => {
+        setTimeout(() => playTone(freq, 0.5, 'sine'), index * 300);
+      });
+    }, [enabled, playTone])
   };
 
   return {

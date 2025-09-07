@@ -54,6 +54,9 @@ export function useGameState() {
       gameSpeed: 4 // Увеличили начальную скорость
     }));
 
+    // Запускаем фоновую музыку
+    sounds.startBackgroundMusic();
+
     setPlayer({
       x: 50,
       y: window.innerHeight - 90, // Скорректировано под новую землю (50px + размер игрока)
@@ -74,13 +77,21 @@ export function useGameState() {
 
   const pauseGame = useCallback(() => {
     setGameState(prev => ({ ...prev, state: 'paused' }));
-  }, []);
+    // Останавливаем фоновую музыку на паузе
+    sounds.stopBackgroundMusic();
+  }, [sounds]);
 
   const resumeGame = useCallback(() => {
     setGameState(prev => ({ ...prev, state: 'playing' }));
-  }, []);
+    // Возобновляем фоновую музыку
+    sounds.startBackgroundMusic();
+  }, [sounds]);
 
   const gameOver = useCallback(() => {
+    // Останавливаем фоновую музыку и играем завершающую мелодию
+    sounds.stopBackgroundMusic();
+    sounds.playGameOverMusic();
+    
     setGameState(prev => {
       const newBestScore = Math.max(prev.score, prev.bestScore);
       localStorage.setItem('septicSurferBest', newBestScore.toString());
@@ -100,7 +111,7 @@ export function useGameState() {
         bestScore: newBestScore
       };
     });
-  }, []);
+  }, [sounds]);
 
   const collectBonus = useCallback((bonus: Bonus) => {
     console.log('Collecting bonus:', bonus, 'Game state before:', gameState.state);
