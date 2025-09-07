@@ -571,16 +571,17 @@ export default function GameCanvas({
             `;
           }
           
-          // Препятствия
+          // Препятствия - увеличены и лучше заполняют прямоугольную область
           if (SvgComponent === FatSprite) {
             return `
               <g>
-                <ellipse cx="30" cy="30" rx="25" ry="20" fill="#8B4513" stroke="#654321" stroke-width="2"/>
-                <ellipse cx="25" cy="25" rx="15" ry="12" fill="#A0522D"/>
-                <ellipse cx="35" cy="35" rx="12" ry="10" fill="#A0522D"/>
-                <circle cx="20" cy="20" r="3" fill="#654321"/>
+                <rect x="5" y="5" width="50" height="50" rx="25" ry="25" fill="#8B4513" stroke="#654321" stroke-width="2"/>
+                <ellipse cx="20" cy="20" rx="12" ry="10" fill="#A0522D"/>
+                <ellipse cx="40" cy="40" rx="10" ry="8" fill="#A0522D"/>
+                <circle cx="18" cy="18" r="3" fill="#654321"/>
                 <circle cx="35" cy="25" r="2" fill="#654321"/>
-                <circle cx="40" cy="35" r="2" fill="#654321"/>
+                <circle cx="42" cy="38" r="2" fill="#654321"/>
+                <circle cx="25" cy="45" r="2" fill="#654321"/>
               </g>
             `;
           }
@@ -588,13 +589,14 @@ export default function GameCanvas({
           if (SvgComponent === WasteSprite) {
             return `
               <g>
-                <ellipse cx="30" cy="35" rx="20" ry="15" fill="#8B4513" stroke="#654321" stroke-width="2"/>
-                <ellipse cx="25" cy="30" rx="12" ry="8" fill="#A0522D"/>
-                <circle cx="35" cy="25" r="5" fill="#654321"/>
-                <circle cx="20" cy="25" r="3" fill="#8B4513"/>
-                <line x1="15" y1="15" x2="20" y2="25" stroke="#654321" stroke-width="2"/>
-                <line x1="40" y1="20" x2="35" y2="30" stroke="#654321" stroke-width="2"/>
-                <line x1="30" y1="10" x2="30" y2="20" stroke="#654321" stroke-width="2"/>
+                <rect x="3" y="8" width="54" height="44" rx="15" ry="15" fill="#8B4513" stroke="#654321" stroke-width="2"/>
+                <ellipse cx="25" cy="25" rx="15" ry="12" fill="#A0522D"/>
+                <circle cx="40" cy="20" r="6" fill="#654321"/>
+                <circle cx="15" cy="35" r="4" fill="#8B4513"/>
+                <line x1="10" y1="10" x2="18" y2="20" stroke="#654321" stroke-width="3"/>
+                <line x1="45" y1="15" x2="38" y2="25" stroke="#654321" stroke-width="3"/>
+                <line x1="30" y1="5" x2="30" y2="15" stroke="#654321" stroke-width="3"/>
+                <circle cx="50" cy="40" r="3" fill="#654321"/>
               </g>
             `;
           }
@@ -602,13 +604,14 @@ export default function GameCanvas({
           if (SvgComponent === ChemicalSprite) {
             return `
               <g>
-                <circle cx="30" cy="30" r="20" fill="#9932CC" stroke="#8B008B" stroke-width="2"/>
-                <circle cx="25" cy="25" r="8" fill="#DA70D6" opacity="0.7"/>
-                <circle cx="35" cy="20" r="5" fill="#FF69B4" opacity="0.8"/>
-                <circle cx="40" cy="35" r="6" fill="#FF1493" opacity="0.6"/>
-                <path d="M 15 15 Q 20 20 25 15" stroke="#8B008B" stroke-width="2" fill="none"/>
-                <path d="M 35 10 Q 40 15 45 10" stroke="#8B008B" stroke-width="2" fill="none"/>
-                <circle cx="30" cy="30" r="3" fill="#FFFFFF"/>
+                <rect x="5" y="5" width="50" height="50" rx="25" ry="25" fill="#9932CC" stroke="#8B008B" stroke-width="2"/>
+                <circle cx="20" cy="20" r="10" fill="#DA70D6" opacity="0.7"/>
+                <circle cx="40" cy="15" r="7" fill="#FF69B4" opacity="0.8"/>
+                <circle cx="45" cy="40" r="8" fill="#FF1493" opacity="0.6"/>
+                <path d="M 10 10 Q 15 15 20 10" stroke="#8B008B" stroke-width="2" fill="none"/>
+                <path d="M 40 5 Q 45 10 50 5" stroke="#8B008B" stroke-width="2" fill="none"/>
+                <circle cx="30" cy="30" r="4" fill="#FFFFFF"/>
+                <circle cx="15" cy="45" r="3" fill="#FFFFFF" opacity="0.8"/>
               </g>
             `;
           }
@@ -616,13 +619,15 @@ export default function GameCanvas({
           if (SvgComponent === IceSprite) {
             return `
               <g>
-                <polygon points="30,5 45,20 40,40 20,40 15,20" fill="#87CEEB" stroke="#4682B4" stroke-width="2"/>
-                <polygon points="30,10 40,20 35,35 25,35 20,20" fill="#B0E0E6"/>
-                <line x1="30" y1="5" x2="30" y2="40" stroke="#4682B4" stroke-width="1"/>
-                <line x1="15" y1="20" x2="45" y2="20" stroke="#4682B4" stroke-width="1"/>
-                <line x1="20" y1="12" x2="40" y2="32" stroke="#4682B4" stroke-width="1"/>
-                <line x1="40" y1="12" x2="20" y2="32" stroke="#4682B4" stroke-width="1"/>
-                <circle cx="30" cy="20" r="2" fill="#FFFFFF"/>
+                <polygon points="30,2 55,15 52,48 8,48 5,15" fill="#87CEEB" stroke="#4682B4" stroke-width="2"/>
+                <polygon points="30,8 48,18 45,42 15,42 12,18" fill="#B0E0E6"/>
+                <line x1="30" y1="2" x2="30" y2="48" stroke="#4682B4" stroke-width="2"/>
+                <line x1="5" y1="25" x2="55" y2="25" stroke="#4682B4" stroke-width="2"/>
+                <line x1="12" y1="10" x2="45" y2="40" stroke="#4682B4" stroke-width="1"/>
+                <line x1="48" y1="10" x2="15" y2="40" stroke="#4682B4" stroke-width="1"/>
+                <circle cx="30" cy="25" r="3" fill="#FFFFFF"/>
+                <circle cx="20" cy="35" r="2" fill="#FFFFFF"/>
+                <circle cx="40" cy="35" r="2" fill="#FFFFFF"/>
               </g>
             `;
           }
@@ -630,11 +635,12 @@ export default function GameCanvas({
           if (SvgComponent === LightningSprite) {
             return `
               <g>
-                <polygon points="25,5 35,20 30,25 40,45 30,25 35,20 20,35 25,20" fill="#FFD700" stroke="#FFA500" stroke-width="2"/>
-                <polygon points="28,8 32,18 30,22 35,35 30,22 32,18 22,28 25,18" fill="#FFFF00"/>
-                <circle cx="30" cy="15" r="2" fill="#FFFFFF"/>
-                <circle cx="27" cy="25" r="1.5" fill="#FFFFFF"/>
-                <circle cx="32" cy="35" r="1" fill="#FFFFFF"/>
+                <polygon points="20,2 40,25 30,30 50,58 25,35 35,25 10,45 20,25" fill="#FFD700" stroke="#FFA500" stroke-width="2"/>
+                <polygon points="25,8 35,22 30,28 42,48 28,32 32,22 18,35 22,20" fill="#FFFF00"/>
+                <circle cx="30" cy="15" r="3" fill="#FFFFFF"/>
+                <circle cx="25" cy="30" r="2" fill="#FFFFFF"/>
+                <circle cx="35" cy="40" r="2" fill="#FFFFFF"/>
+                <circle cx="45" cy="50" r="1.5" fill="#FFFFFF"/>
               </g>
             `;
           }
@@ -642,15 +648,16 @@ export default function GameCanvas({
           if (SvgComponent === RootsSprite) {
             return `
               <g>
-                <path d="M 15 25 Q 20 20 25 25 Q 30 30 35 25 Q 40 20 45 25" stroke="#8B4513" stroke-width="4" fill="none"/>
-                <path d="M 20 25 Q 15 30 10 35" stroke="#654321" stroke-width="3" fill="none"/>
-                <path d="M 30 25 Q 35 30 40 35" stroke="#654321" stroke-width="3" fill="none"/>
-                <path d="M 25 25 Q 25 35 20 45" stroke="#654321" stroke-width="3" fill="none"/>
-                <path d="M 25 25 Q 25 35 30 45" stroke="#654321" stroke-width="3" fill="none"/>
-                <circle cx="12" cy="37" r="2" fill="#228B22"/>
-                <circle cx="38" cy="37" r="2" fill="#228B22"/>
-                <circle cx="22" cy="47" r="2" fill="#228B22"/>
-                <circle cx="28" cy="47" r="2" fill="#228B22"/>
+                <rect x="5" y="20" width="50" height="35" rx="10" ry="5" fill="#8B4513" stroke="#654321" stroke-width="2" opacity="0.3"/>
+                <path d="M 10 30 Q 15 25 20 30 Q 25 35 30 30 Q 35 25 40 30 Q 45 35 50 30" stroke="#8B4513" stroke-width="5" fill="none"/>
+                <path d="M 15 30 Q 10 40 5 50" stroke="#654321" stroke-width="4" fill="none"/>
+                <path d="M 35 30 Q 40 40 45 50" stroke="#654321" stroke-width="4" fill="none"/>
+                <path d="M 25 30 Q 20 45 15 55" stroke="#654321" stroke-width="4" fill="none"/>
+                <path d="M 25 30 Q 30 45 35 55" stroke="#654321" stroke-width="4" fill="none"/>
+                <circle cx="8" cy="48" r="3" fill="#228B22"/>
+                <circle cx="42" cy="48" r="3" fill="#228B22"/>
+                <circle cx="18" cy="53" r="3" fill="#228B22"/>
+                <circle cx="32" cy="53" r="3" fill="#228B22"/>
               </g>
             `;
           }
