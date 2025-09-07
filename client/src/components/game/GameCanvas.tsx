@@ -496,8 +496,9 @@ export default function GameCanvas({
         // Создаем виртуальный div для рендера React компонента
         const tempDiv = document.createElement('div');
         
-        // Простое SVG содержимое (без React)
+        // Детальное SVG содержимое для каждого типа спрайта
         const getSvgContent = () => {
+          // Игрок - водяная капля
           if (SvgComponent === PlayerSprite) {
             return `
               <g>
@@ -515,7 +516,146 @@ export default function GameCanvas({
               </g>
             `;
           }
-          // Простые фолбэки для остальных
+          
+          // Бонусы
+          if (SvgComponent === BacteriaSprite) {
+            return `
+              <g>
+                <circle cx="20" cy="20" r="15" fill="#32CD32" stroke="#228B22" stroke-width="2"/>
+                <circle cx="15" cy="15" r="3" fill="#90EE90"/>
+                <circle cx="25" cy="15" r="3" fill="#90EE90"/>
+                <circle cx="20" cy="25" r="4" fill="#90EE90"/>
+                <path d="M 5 20 Q 10 15 15 20" stroke="#228B22" stroke-width="2" fill="none"/>
+                <path d="M 25 20 Q 30 15 35 20" stroke="#228B22" stroke-width="2" fill="none"/>
+                <circle cx="20" cy="20" r="2" fill="#FFFFFF"/>
+              </g>
+            `;
+          }
+          
+          if (SvgComponent === BubbleSprite) {
+            return `
+              <g>
+                <circle cx="20" cy="20" r="15" fill="#F0F8FF" stroke="#B0E0E6" stroke-width="2" opacity="0.8"/>
+                <circle cx="15" cy="15" r="3" fill="#FFFFFF" opacity="0.9"/>
+                <circle cx="12" cy="12" r="1.5" fill="#FFFFFF"/>
+                <circle cx="28" cy="18" r="2" fill="#FFFFFF" opacity="0.7"/>
+                <circle cx="25" cy="25" r="1" fill="#FFFFFF"/>
+              </g>
+            `;
+          }
+          
+          if (SvgComponent === FilterSprite) {
+            return `
+              <g>
+                <rect x="5" y="10" width="30" height="20" fill="#4169E1" stroke="#191970" stroke-width="2" rx="3"/>
+                <rect x="8" y="13" width="24" height="14" fill="#6495ED"/>
+                <line x1="8" y1="16" x2="32" y2="16" stroke="#191970" stroke-width="1"/>
+                <line x1="8" y1="20" x2="32" y2="20" stroke="#191970" stroke-width="1"/>
+                <line x1="8" y1="24" x2="32" y2="24" stroke="#191970" stroke-width="1"/>
+                <circle cx="12" cy="18" r="1" fill="#FFFFFF"/>
+                <circle cx="28" cy="22" r="1" fill="#FFFFFF"/>
+              </g>
+            `;
+          }
+          
+          if (SvgComponent === KeySprite) {
+            return `
+              <g>
+                <circle cx="12" cy="20" r="8" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+                <circle cx="12" cy="20" r="4" fill="none" stroke="#DAA520" stroke-width="2"/>
+                <rect x="20" y="18" width="15" height="4" fill="#FFD700" stroke="#DAA520" stroke-width="1"/>
+                <rect x="30" y="16" width="3" height="2" fill="#FFD700"/>
+                <rect x="30" y="24" width="3" height="2" fill="#FFD700"/>
+                <rect x="27" y="20" width="3" height="2" fill="#FFD700"/>
+              </g>
+            `;
+          }
+          
+          // Препятствия
+          if (SvgComponent === FatSprite) {
+            return `
+              <g>
+                <ellipse cx="30" cy="30" rx="25" ry="20" fill="#8B4513" stroke="#654321" stroke-width="2"/>
+                <ellipse cx="25" cy="25" rx="15" ry="12" fill="#A0522D"/>
+                <ellipse cx="35" cy="35" rx="12" ry="10" fill="#A0522D"/>
+                <circle cx="20" cy="20" r="3" fill="#654321"/>
+                <circle cx="35" cy="25" r="2" fill="#654321"/>
+                <circle cx="40" cy="35" r="2" fill="#654321"/>
+              </g>
+            `;
+          }
+          
+          if (SvgComponent === WasteSprite) {
+            return `
+              <g>
+                <ellipse cx="30" cy="35" rx="20" ry="15" fill="#8B4513" stroke="#654321" stroke-width="2"/>
+                <ellipse cx="25" cy="30" rx="12" ry="8" fill="#A0522D"/>
+                <circle cx="35" cy="25" r="5" fill="#654321"/>
+                <circle cx="20" cy="25" r="3" fill="#8B4513"/>
+                <line x1="15" y1="15" x2="20" y2="25" stroke="#654321" stroke-width="2"/>
+                <line x1="40" y1="20" x2="35" y2="30" stroke="#654321" stroke-width="2"/>
+                <line x1="30" y1="10" x2="30" y2="20" stroke="#654321" stroke-width="2"/>
+              </g>
+            `;
+          }
+          
+          if (SvgComponent === ChemicalSprite) {
+            return `
+              <g>
+                <circle cx="30" cy="30" r="20" fill="#9932CC" stroke="#8B008B" stroke-width="2"/>
+                <circle cx="25" cy="25" r="8" fill="#DA70D6" opacity="0.7"/>
+                <circle cx="35" cy="20" r="5" fill="#FF69B4" opacity="0.8"/>
+                <circle cx="40" cy="35" r="6" fill="#FF1493" opacity="0.6"/>
+                <path d="M 15 15 Q 20 20 25 15" stroke="#8B008B" stroke-width="2" fill="none"/>
+                <path d="M 35 10 Q 40 15 45 10" stroke="#8B008B" stroke-width="2" fill="none"/>
+                <circle cx="30" cy="30" r="3" fill="#FFFFFF"/>
+              </g>
+            `;
+          }
+          
+          if (SvgComponent === IceSprite) {
+            return `
+              <g>
+                <polygon points="30,5 45,20 40,40 20,40 15,20" fill="#87CEEB" stroke="#4682B4" stroke-width="2"/>
+                <polygon points="30,10 40,20 35,35 25,35 20,20" fill="#B0E0E6"/>
+                <line x1="30" y1="5" x2="30" y2="40" stroke="#4682B4" stroke-width="1"/>
+                <line x1="15" y1="20" x2="45" y2="20" stroke="#4682B4" stroke-width="1"/>
+                <line x1="20" y1="12" x2="40" y2="32" stroke="#4682B4" stroke-width="1"/>
+                <line x1="40" y1="12" x2="20" y2="32" stroke="#4682B4" stroke-width="1"/>
+                <circle cx="30" cy="20" r="2" fill="#FFFFFF"/>
+              </g>
+            `;
+          }
+          
+          if (SvgComponent === LightningSprite) {
+            return `
+              <g>
+                <polygon points="25,5 35,20 30,25 40,45 30,25 35,20 20,35 25,20" fill="#FFD700" stroke="#FFA500" stroke-width="2"/>
+                <polygon points="28,8 32,18 30,22 35,35 30,22 32,18 22,28 25,18" fill="#FFFF00"/>
+                <circle cx="30" cy="15" r="2" fill="#FFFFFF"/>
+                <circle cx="27" cy="25" r="1.5" fill="#FFFFFF"/>
+                <circle cx="32" cy="35" r="1" fill="#FFFFFF"/>
+              </g>
+            `;
+          }
+          
+          if (SvgComponent === RootsSprite) {
+            return `
+              <g>
+                <path d="M 15 25 Q 20 20 25 25 Q 30 30 35 25 Q 40 20 45 25" stroke="#8B4513" stroke-width="4" fill="none"/>
+                <path d="M 20 25 Q 15 30 10 35" stroke="#654321" stroke-width="3" fill="none"/>
+                <path d="M 30 25 Q 35 30 40 35" stroke="#654321" stroke-width="3" fill="none"/>
+                <path d="M 25 25 Q 25 35 20 45" stroke="#654321" stroke-width="3" fill="none"/>
+                <path d="M 25 25 Q 25 35 30 45" stroke="#654321" stroke-width="3" fill="none"/>
+                <circle cx="12" cy="37" r="2" fill="#228B22"/>
+                <circle cx="38" cy="37" r="2" fill="#228B22"/>
+                <circle cx="22" cy="47" r="2" fill="#228B22"/>
+                <circle cx="28" cy="47" r="2" fill="#228B22"/>
+              </g>
+            `;
+          }
+          
+          // Фолбэк если тип не найден
           return '<circle cx="25" cy="25" r="20" fill="#ccc"/>';
         };
         
