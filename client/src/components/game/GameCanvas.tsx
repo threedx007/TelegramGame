@@ -431,14 +431,14 @@ export default function GameCanvas({
       if (updatedPlayer.jumpsRemaining > 0) {
         // Первый прыжок (с земли или платформы)
         if (updatedPlayer.jumpsRemaining === 2) {
-          updatedPlayer.velocityY = -12;
+          updatedPlayer.velocityY = -14;
           updatedPlayer.grounded = false;
           updatedPlayer.jumpsRemaining = 1;
           sounds.jump();
         }
         // Второй прыжок (двойной прыжок в воздухе)
         else if (updatedPlayer.jumpsRemaining === 1) {
-          updatedPlayer.velocityY = -10;
+          updatedPlayer.velocityY = -12;
           updatedPlayer.jumpsRemaining = 0;
           updatedPlayer.doubleJumpAvailable = false; // Для совместимости
           sounds.doubleJump();
@@ -452,7 +452,7 @@ export default function GameCanvas({
     
     // Update player physics
     if (!updatedPlayer.grounded) {
-      updatedPlayer.velocityY += 0.5 * deltaMultiplier; // gravity
+      updatedPlayer.velocityY += 0.6 * deltaMultiplier; // gravity
     }
     updatedPlayer.y += updatedPlayer.velocityY * deltaMultiplier;
 
