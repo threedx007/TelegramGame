@@ -2,19 +2,19 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import { Player, Obstacle, Bonus, Particle, GameState } from '@/types/game';
 
 // Импорты изображений спрайтов (обновленные с прозрачным фоном)
-import playerSprite from '@assets/generated_images/Clean_water_droplet_no_text_b578573b.png';
+import playerSprite from '@assets/generated_images/Clean_water_droplet_character_ac21a136.png';
 // Бонусы
-import bacteriaSprite from '@assets/generated_images/Green_bacteria_transparent_d6f77a2d.png';
-import bubbleSprite from '@assets/generated_images/White_bubble_transparent_be8c2489.png';
-import filterSprite from '@assets/generated_images/Blue_filter_transparent_a9bcbcb9.png';
-import keySprite from '@assets/generated_images/Golden_key_transparent_dde83671.png';
+import bacteriaSprite from '@assets/generated_images/Green_bacteria_bonus_sprite_ecc57295.png';
+import bubbleSprite from '@assets/generated_images/White_bubble_bonus_sprite_0b5fd896.png';
+import filterSprite from '@assets/generated_images/Blue_filter_bonus_sprite_86522dfb.png';
+import keySprite from '@assets/generated_images/Golden_key_bonus_sprite_df158532.png';
 // Препятствия
-import fatSprite from '@assets/generated_images/Fat_blob_transparent_3310b9a6.png';
-import wasteSprite from '@assets/generated_images/Waste_matter_transparent_1a8e49a7.png';
-import chemicalSprite from '@assets/generated_images/Chemical_poison_transparent_60cf080d.png';
-import iceSprite from '@assets/generated_images/Ice_crystal_transparent_8628b41e.png';
-import lightningSprite from '@assets/generated_images/Lightning_bolt_transparent_a4cbabf9.png';
-import rootsSprite from '@assets/generated_images/Tree_roots_transparent_cf0691c2.png';
+import fatSprite from '@assets/generated_images/Fat_blob_obstacle_sprite_f375a784.png';
+import wasteSprite from '@assets/generated_images/Waste_matter_obstacle_sprite_fd08a121.png';
+import chemicalSprite from '@assets/generated_images/Chemical_poison_obstacle_sprite_7f4cf5b4.png';
+import iceSprite from '@assets/generated_images/Ice_crystal_obstacle_sprite_f1a82d4b.png';
+import lightningSprite from '@assets/generated_images/Lightning_bolt_obstacle_sprite_2d772c34.png';
+import rootsSprite from '@assets/generated_images/Tree_roots_obstacle_sprite_a34ebd65.png';
 
 interface GameCanvasProps {
   gameState: GameState;
