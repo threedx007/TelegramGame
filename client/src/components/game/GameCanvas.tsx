@@ -449,32 +449,78 @@ export default function GameCanvas({
     }
     updatedPlayer.y += updatedPlayer.velocityY;
 
+    // Сначала проверяем коллизии с ямами ДО обработки земли
+    let inPit = false;
+    for (const pit of currentPits) {
+      if (updatedPlayer.x + updatedPlayer.width > pit.x && 
+          updatedPlayer.x < pit.x + pit.width) {
+        const groundY = canvas.height - 50 - updatedPlayer.height;
+        // Если игрок на уровне земли и в области ямы
+        if (updatedPlayer.y >= groundY) {
+          // Игрок проваливается в яму
+          onPitFall(pit);
+          inPit = true;
+          return; // Прерываем выполнение, игра окончена
+        }
+      }
+    }
+
     // Platform collision - проверяем коллизии с платформами
     let onPlatform = false;
+    let currentPlatformY = null;
+    
     for (const platform of currentPlatforms) {
-      // Проверяем, приземляется ли игрок на платформу сверху
-      if (updatedPlayer.x + updatedPlayer.width > platform.x && 
-          updatedPlayer.x < platform.x + platform.width &&
-          updatedPlayer.y + updatedPlayer.height >= platform.y && 
-          updatedPlayer.y + updatedPlayer.height <= platform.y + platform.height + 5 &&
+      // Проверяем, находится ли игрок НАД платформой (приземляется сверху)
+      const playerBottom = updatedPlayer.y + updatedPlayer.height;
+      const playerLeft = updatedPlayer.x;
+      const playerRight = updatedPlayer.x + updatedPlayer.width;
+      const platformLeft = platform.x;
+      const platformRight = platform.x + platform.width;
+      const platformTop = platform.y;
+      const platformBottom = platform.y + platform.height;
+      
+      // Проверяем пересечение по X и что игрок приземляется на платформу сверху
+      if (playerRight > platformLeft && playerLeft < platformRight &&
+          playerBottom >= platformTop && playerBottom <= platformBottom + 5 &&
           updatedPlayer.velocityY >= 0) {
-        updatedPlayer.y = platform.y - updatedPlayer.height;
+        updatedPlayer.y = platformTop - updatedPlayer.height;
         updatedPlayer.velocityY = 0;
         updatedPlayer.grounded = true;
         updatedPlayer.doubleJumpAvailable = true;
         onPlatform = true;
+        currentPlatformY = platformTop;
         break;
       }
     }
 
-    // Ground collision - скорректировано под новую землю и размер игрока
-    if (!onPlatform) {
+    // Ground collision - только если не на платформе и не в яме
+    if (!onPlatform && !inPit) {
       const groundY = canvas.height - 50 - updatedPlayer.height; // 50px земли + высота игрока
       if (updatedPlayer.y >= groundY) {
         updatedPlayer.y = groundY;
         updatedPlayer.velocityY = 0;
         updatedPlayer.grounded = true;
-        updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок при приземлении
+        updatedPlayer.doubleJumpAvailable = true;
+      } else {
+        // Игрок в воздухе - не на земле
+        updatedPlayer.grounded = false;
+      }
+    }
+    
+    // Если игрок был на платформе, но теперь не над ней - он должен упасть
+    if (!onPlatform && updatedPlayer.grounded && currentPlatformY !== null) {
+      // Проверяем, есть ли платформа под игроком
+      let platformUnder = false;
+      for (const platform of currentPlatforms) {
+        if (updatedPlayer.x + updatedPlayer.width > platform.x && 
+            updatedPlayer.x < platform.x + platform.width &&
+            Math.abs(updatedPlayer.y + updatedPlayer.height - platform.y) < 5) {
+          platformUnder = true;
+          break;
+        }
+      }
+      if (!platformUnder) {
+        updatedPlayer.grounded = false; // Игрок начинает падать
       }
     }
 
@@ -601,12 +647,7 @@ export default function GameCanvas({
     const updatedPits = currentPits.filter(pit => {
       pit.x -= gameState.gameSpeed;
       if (pit.x + pit.width < 0) return false;
-      
-      // Проверяем коллизии с ямой - если игрок на уровне земли и внутри ямы
-      if (checkCollision(updatedPlayer, pit) && updatedPlayer.grounded) {
-        onPitFall(pit);
-        return false;
-      }
+      // Коллизии с ямами теперь обрабатываются в основной логике физики
       return true;
     });
     
