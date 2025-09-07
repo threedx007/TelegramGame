@@ -294,8 +294,8 @@ export default function GameCanvas({
     }
     updatedPlayer.y += updatedPlayer.velocityY;
 
-    // Ground collision
-    const groundY = canvas.height - 150;
+    // Ground collision - скорректировано под новую землю и размер игрока
+    const groundY = canvas.height - 50 - updatedPlayer.height; // 50px земли + высота игрока
     if (updatedPlayer.y >= groundY) {
       updatedPlayer.y = groundY;
       updatedPlayer.velocityY = 0;

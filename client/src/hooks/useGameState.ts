@@ -23,9 +23,9 @@ export function useGameState() {
 
   const [player, setPlayer] = useState<Player>({
     x: 50,
-    y: window.innerHeight - 150, // Правильная позиция на земле
-    width: 40,
-    height: 40,
+    y: window.innerHeight - 90, // Скорректировано под новую землю (50px + размер игрока)
+    width: 50, // Увеличенный размер игрока для лучшей видимости
+    height: 50,
     velocityY: 0,
     grounded: true,
     color: '#00A8FF',
@@ -53,9 +53,9 @@ export function useGameState() {
 
     setPlayer({
       x: 50,
-      y: window.innerHeight - 150, // Правильная позиция на земле
-      width: 40,
-      height: 40,
+      y: window.innerHeight - 90, // Скорректировано под новую землю (50px + размер игрока)
+      width: 50, // Увеличенный размер игрока для лучшей видимости
+      height: 50,
       velocityY: 0,
       grounded: true,
       color: '#00A8FF',
