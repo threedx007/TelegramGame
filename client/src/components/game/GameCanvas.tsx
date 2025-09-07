@@ -144,30 +144,26 @@ export default function GameCanvas({
   }, []);
 
   const drawObstacle = useCallback((ctx: CanvasRenderingContext2D, obstacle: Obstacle) => {
-    console.log('Drawing obstacle at:', obstacle.x, obstacle.y, 'size:', obstacle.width, 'x', obstacle.height);
-    
     // Рисуем препятствие
     ctx.fillStyle = obstacle.color;
     ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     
-    // Очень толстая черная рамка для видимости
+    // Черная рамка для видимости
     ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 2;
     ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
   }, []);
 
   const drawBonus = useCallback((ctx: CanvasRenderingContext2D, bonus: Bonus) => {
-    console.log('Drawing bonus at:', bonus.x, bonus.y, 'type:', bonus.type);
-    
     ctx.save();
     
-    // Рисуем бонус как большой квадрат для видимости
+    // Рисуем бонус
     ctx.fillStyle = bonus.color;
     ctx.fillRect(bonus.x, bonus.y, bonus.width, bonus.height);
     
-    // Очень толстая черная рамка
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 4;
+    // Белая рамка для контраста
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2;
     ctx.strokeRect(bonus.x, bonus.y, bonus.width, bonus.height);
     
     ctx.restore();
@@ -210,10 +206,12 @@ export default function GameCanvas({
 
     onPlayerUpdate(updatedPlayer);
 
-    // Update game state
-    const newDistance = gameState.distance + gameState.gameSpeed;
-    const newLevel = Math.floor(newDistance / 500) + 1;
-    const newSpeed = Math.min(2 + (newLevel - 1) * 0.5, 8);
+    // Update game state - более реалистичный рост дистанции
+    // Дистанция растет пропорционально скорости игры, но в метрах, а не пикселях
+    const distanceIncrement = gameState.gameSpeed * 0.1; // 0.1 метра за пиксель движения
+    const newDistance = gameState.distance + distanceIncrement;
+    const newLevel = Math.floor(newDistance / 100) + 1; // Новый уровень каждые 100 метров
+    const newSpeed = Math.min(2 + (newLevel - 1) * 0.3, 6); // Менее агрессивное ускорение
 
     onGameStateUpdate({
       ...gameState,
@@ -236,7 +234,6 @@ export default function GameCanvas({
       const newObstacle = spawnObstacle(canvas.width, canvas.height);
       if (!checkObjectOverlap(newObstacle, [...currentObstacles, ...currentBonuses])) {
         currentObstacles.push(newObstacle);
-        console.log('Spawned obstacle:', newObstacle);
       }
     }
     
@@ -246,7 +243,6 @@ export default function GameCanvas({
       const newBonus = spawnBonus(canvas.width, canvas.height);
       if (!checkObjectOverlap(newBonus, [...currentObstacles, ...currentBonuses])) {
         currentBonuses.push(newBonus);
-        console.log('Spawned bonus:', newBonus);
       }
     }
 
@@ -274,8 +270,6 @@ export default function GameCanvas({
       return true;
     });
     
-    console.log('Before update - obstacles:', currentObstacles.length, 'bonuses:', currentBonuses.length);
-    console.log('After update - obstacles:', updatedObstacles.length, 'bonuses:', updatedBonuses.length);
     
     // Обновляем состояния
     onObstaclesUpdate(updatedObstacles);
@@ -317,12 +311,6 @@ export default function GameCanvas({
     bonuses.forEach(bonus => drawBonus(ctx, bonus));
     particles.forEach(particle => drawParticle(ctx, particle));
     
-    // Отладочная информация
-    if (obstacles.length > 0 || bonuses.length > 0) {
-      console.log('Drawing - obstacles:', obstacles.length, 'bonuses:', bonuses.length);
-      if (obstacles.length > 0) console.log('First obstacle:', obstacles[0]);
-      if (bonuses.length > 0) console.log('First bonus:', bonuses[0]);
-    }
   }, [player, obstacles, bonuses, particles, drawPlayer, drawObstacle, drawBonus, drawParticle]);
 
   // Удаляем отдельную функцию gameLoop, так как логика перенесена в useEffect
