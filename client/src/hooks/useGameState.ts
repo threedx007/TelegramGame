@@ -21,7 +21,7 @@ export function useGameState() {
     distance: 0,
     level: 1,
     combo: 0,
-    gameSpeed: 4.8, // Увеличили начальную скорость на 20% для большей динамики
+    gameSpeed: 3.0, // Оптимизированная скорость после исправления тайминга
     bestScore: parseInt(localStorage.getItem('septicSurferBest') || '0')
   });
 
@@ -55,7 +55,7 @@ export function useGameState() {
       distance: 0,
       level: 1,
       combo: 0,
-      gameSpeed: 4.8 // Увеличили начальную скорость на 20%
+      gameSpeed: 3.0 // Оптимизированная скорость после исправления тайминга
     }));
 
     setPlayer({
