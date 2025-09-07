@@ -136,8 +136,8 @@ export default function GameCanvas({
     const heightVariants = [
       groundLevel - obstacleHeight, // На земле - не уходит под землю
       groundLevel - obstacleHeight, // На земле (дублируем для увеличения вероятности)
-      canvasHeight - 140, // Средняя высота - можно пройти одним прыжком
-      canvasHeight - 210, // Высоко - нужен двойной прыжок
+      groundLevel - obstacleHeight - 20, // Средняя высота - можно пройти одним прыжком
+      groundLevel - obstacleHeight - 90, // Высоко - нужен двойной прыжок
     ];
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
@@ -176,8 +176,8 @@ export default function GameCanvas({
     const groundLevel = canvasHeight - 120; // Уровень земли (увеличен для мобильных)
     const heightVariants = [
       groundLevel - bonusHeight, // Низко - не уходит под землю
-      canvasHeight - 160, // Средне
-      canvasHeight - 220, // Высоко (двойной прыжок)
+      groundLevel - bonusHeight - 40, // Средне
+      groundLevel - bonusHeight - 100, // Высоко (двойной прыжок)
     ];
     const yPosition = heightVariants[Math.floor(Math.random() * heightVariants.length)];
 
