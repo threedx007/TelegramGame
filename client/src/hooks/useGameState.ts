@@ -17,7 +17,7 @@ export function useGameState() {
     distance: 0,
     level: 1,
     combo: 0,
-    gameSpeed: 2,
+    gameSpeed: 4, // Увеличили начальную скорость для динамичности
     bestScore: parseInt(localStorage.getItem('septicSurferBest') || '0')
   });
 
@@ -48,7 +48,7 @@ export function useGameState() {
       distance: 0,
       level: 1,
       combo: 0,
-      gameSpeed: 2
+      gameSpeed: 4 // Увеличили начальную скорость
     }));
 
     setPlayer({

@@ -59,9 +59,10 @@ export default function GameCanvas({
       roots: '#228B22'
     };
 
-    // Варианты высот: достижимые с двойным прыжком (макс высота прыжка ~180px)
+    // Варианты высот: больше препятствий на земле для принуждения к прыжкам
     const heightVariants = [
-      canvasHeight - 150, // На земле - нужно прыгать
+      canvasHeight - 150, // На земле - нужно прыгать (50% вероятность)
+      canvasHeight - 150, // На земле (дублируем для увеличения вероятности)
       canvasHeight - 220, // Средняя высота - можно пройти одним прыжком
       canvasHeight - 290, // Высоко - нужен двойной прыжок
     ];
@@ -230,7 +231,7 @@ export default function GameCanvas({
     const distanceIncrement = gameState.gameSpeed * 0.1; // 0.1 метра за пиксель движения
     const newDistance = gameState.distance + distanceIncrement;
     const newLevel = Math.floor(newDistance / 100) + 1; // Новый уровень каждые 100 метров
-    const newSpeed = Math.min(2 + (newLevel - 1) * 0.3, 6); // Менее агрессивное ускорение
+    const newSpeed = Math.min(4 + (newLevel - 1) * 0.3, 8); // Увеличенная базовая скорость с плавным ускорением
 
     onGameStateUpdate({
       ...gameState,
@@ -247,21 +248,40 @@ export default function GameCanvas({
       });
     };
 
-    // Спавн препятствий (больше препятствий для сложности)
-    const obstacleSpawnRate = Math.max(0.015 - gameState.level * 0.001, 0.008);
-    if (Math.random() < obstacleSpawnRate && currentObstacles.length < 5) {
+    // Спавн препятствий (более частый спавн для динамичности)
+    const obstacleSpawnRate = Math.max(0.025 - gameState.level * 0.001, 0.015);
+    if (Math.random() < obstacleSpawnRate && currentObstacles.length < 6) {
       const newObstacle = spawnObstacle(canvas.width, canvas.height);
       if (!checkObjectOverlap(newObstacle, [...currentObstacles, ...currentBonuses])) {
         currentObstacles.push(newObstacle);
       }
     }
     
-    // Спавн бонусов (реже чем препятствий)
-    const bonusSpawnRate = 0.006;
-    if (Math.random() < bonusSpawnRate && currentBonuses.length < 1) {
+    // Спавн бонусов (увеличили частоту)
+    const bonusSpawnRate = 0.012;
+    if (Math.random() < bonusSpawnRate && currentBonuses.length < 2) {
       const newBonus = spawnBonus(canvas.width, canvas.height);
       if (!checkObjectOverlap(newBonus, [...currentObstacles, ...currentBonuses])) {
         currentBonuses.push(newBonus);
+      }
+    }
+    
+    // Гарантируем минимальное количество объектов на экране
+    const totalObjects = currentObstacles.length + currentBonuses.length;
+    if (totalObjects < 2) {
+      // Принудительно спавним объект если экран пустой
+      if (Math.random() < 0.7) {
+        // 70% шанс спавна препятствия
+        const newObstacle = spawnObstacle(canvas.width, canvas.height);
+        if (!checkObjectOverlap(newObstacle, [...currentObstacles, ...currentBonuses])) {
+          currentObstacles.push(newObstacle);
+        }
+      } else {
+        // 30% шанс спавна бонуса
+        const newBonus = spawnBonus(canvas.width, canvas.height);
+        if (!checkObjectOverlap(newBonus, [...currentObstacles, ...currentBonuses])) {
+          currentBonuses.push(newBonus);
+        }
       }
     }
 
