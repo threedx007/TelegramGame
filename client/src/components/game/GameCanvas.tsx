@@ -521,6 +521,7 @@ export default function GameCanvas({
       }
       if (!platformUnder) {
         updatedPlayer.grounded = false; // Игрок начинает падать
+        updatedPlayer.doubleJumpAvailable = true; // Восстанавливаем двойной прыжок при сходе с платформы
       }
     }
 
