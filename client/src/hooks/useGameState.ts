@@ -200,9 +200,9 @@ export function useGameState() {
     const shareText = `🏆 Я набрал ${gameState.score} очков в игре "Септик-Серфер"! 💧
 
 🎮 Игра о правильном уходе за септиком
-📏 Дистанция: ${Math.floor(gameState.distance)} метров
+Попробуй побить мой рекорд! 🚀
 
-Попробуй побить мой рекорд! 🚀`;
+https://t.me/dm_avtovoronki_bot?start=webapp`;
     
     if (window.Telegram?.WebApp) {
       // Используем простой подход для Telegram Web App
@@ -210,7 +210,6 @@ export function useGameState() {
         window.Telegram.WebApp.sendData(JSON.stringify({
           action: 'share_score',
           score: gameState.score,
-          distance: Math.floor(gameState.distance),
           text: shareText
         }));
       } catch (error) {
@@ -222,31 +221,17 @@ export function useGameState() {
       if (navigator.share) {
         navigator.share({
           title: 'Септик-Серфер - Мой результат',
-          text: shareText,
-          url: window.location.href
+          text: shareText
         }).catch(() => {
           // Если не удалось поделиться, показываем текст для ручного копирования
           prompt('📋 Скопируйте результат:', shareText);
         });
-      } else if (navigator.clipboard) {
-        // Проверяем, что документ в фокусе перед копированием
-        if (document.hasFocus()) {
-          navigator.clipboard.writeText(shareText).then(() => {
-            alert('✅ Результат скопирован в буфер обмена!');
-          }).catch(() => {
-            // Показываем текст для ручного копирования
-            prompt('📋 Скопируйте результат:', shareText);
-          });
-        } else {
-          // Документ не в фокусе - показываем текст для ручного копирования
-          prompt('📋 Скопируйте результат:', shareText);
-        }
       } else {
         // Показываем текст для ручного копирования
         prompt('📋 Скопируйте результат:', shareText);
       }
     }
-  }, [gameState.score, gameState.distance]);
+  }, [gameState.score]);
 
   // Функция обновления игрового состояния (сброс комбо по времени)
   const updateGameLogic = useCallback(() => {
