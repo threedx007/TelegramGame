@@ -13,15 +13,17 @@ interface GameUIProps {
 
 export default function GameUI({ gameState, showCombo, soundEnabled, volume, onPause, onToggleSound, onVolumeChange }: GameUIProps) {
   const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipShownInSession, setTooltipShownInSession] = useState(false);
 
   useEffect(() => {
-    if (gameState.state === 'playing' && gameState.score < 100) {
+    if (gameState.state === 'playing' && gameState.score < 10 && !tooltipShownInSession) {
       // Для Telegram WebApp добавляем небольшую задержку, чтобы интерфейс успел прогрузиться
       const isInTelegram = !!(window as any).Telegram?.WebApp;
       const delay = isInTelegram ? 500 : 0;
       
       const timer = setTimeout(() => {
         setShowTooltip(true);
+        setTooltipShownInSession(true); // Отмечаем что подсказка уже показывалась
       }, delay);
 
       // Пропадает через 3 секунды
@@ -33,10 +35,10 @@ export default function GameUI({ gameState, showCombo, soundEnabled, volume, onP
         clearTimeout(timer);
         clearTimeout(hideTimer);
       };
-    } else {
+    } else if (gameState.state !== 'playing') {
       setShowTooltip(false);
     }
-  }, [gameState.state, gameState.score]);
+  }, [gameState.state, gameState.score, tooltipShownInSession]);
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10">
